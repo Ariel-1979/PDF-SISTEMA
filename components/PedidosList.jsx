@@ -246,20 +246,23 @@ const PedidosList = () => {
 
   if (loading && !searching) {
     return (
-      <div className="pedidos-container">
-        <div className="loading">Cargando...</div>
+      <div className="presupuestos-container">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Cargando...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="pedidos-container">
-      <div className="pedidos-header">
+    <div className="presupuestos-container">
+      <div className="presupuestos-header">
         <h2>Pedidos</h2>
       </div>
 
-      <div className="search-container">
-        <div className="search-filters-row">
+      <div className="search-actions-container">
+        <div className="search-container">
           <form onSubmit={handleSearch} className="search-form">
             <div className="search-input-wrapper">
               <input
@@ -269,219 +272,189 @@ const PedidosList = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input"
               />
-              <button
-                type="submit"
-                className="btn btn-search"
-                disabled={searching}
-              >
+              <button type="submit" className="btn-search" disabled={searching}>
                 <Search size={20} />
-                <span className="search-button-text">
-                  {searching ? "Buscando..." : "Buscar"}
-                </span>
               </button>
             </div>
             {searchQuery && (
               <button
                 type="button"
-                className="btn btn-outline"
+                className="btn-clear"
                 onClick={() => {
                   setSearchQuery("");
                   fetchPedidos();
                 }}
               >
-                <span>Limpiar</span>
+                Limpiar
               </button>
             )}
           </form>
+        </div>
 
-          <div className="filters-row">
-            <div className="filter-group">
-              <select
-                id="estadoEntrega"
-                className="filter-select"
-                value={estadoEntregaFilter}
-                onChange={(e) => setEstadoEntregaFilter(e.target.value)}
-                aria-label="Filtrar por estado de entrega"
-              >
-                <option value="todos">Estado Entrega: Todos</option>
-                <option value="pendiente">Estado Entrega: Pendiente</option>
-                <option value="entregado">Estado Entrega: Entregado</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <select
-                id="estadoPago"
-                className="filter-select"
-                value={estadoPagoFilter}
-                onChange={(e) => setEstadoPagoFilter(e.target.value)}
-                aria-label="Filtrar por estado de pago"
-              >
-                <option value="todos">Estado Pago: Todos</option>
-                <option value="abonado">Estado Pago: Abonado</option>
-                <option value="a_pagar">Estado Pago: A Pagar</option>
-                <option value="resta_abonar">Estado Pago: Resta Abonar</option>
-              </select>
-            </div>
-
-            {filtersActive && (
-              <button
-                className="btn-icon-only btn-clear-filters"
-                onClick={resetFilters}
-                title="Borrar filtros"
-              >
-                <Trash2 size={18} color="var(--danger-color)" />
-              </button>
-            )}
+        <div className="filters-row">
+          <div className="filter-group">
+            <select
+              id="estadoEntrega"
+              className="filter-select"
+              value={estadoEntregaFilter}
+              onChange={(e) => setEstadoEntregaFilter(e.target.value)}
+              aria-label="Filtrar por estado de entrega"
+            >
+              <option value="todos">Estado Entrega: Todos</option>
+              <option value="pendiente">Estado Entrega: Pendiente</option>
+              <option value="entregado">Estado Entrega: Entregado</option>
+            </select>
           </div>
+
+          <div className="filter-group">
+            <select
+              id="estadoPago"
+              className="filter-select"
+              value={estadoPagoFilter}
+              onChange={(e) => setEstadoPagoFilter(e.target.value)}
+              aria-label="Filtrar por estado de pago"
+            >
+              <option value="todos">Estado Pago: Todos</option>
+              <option value="abonado">Estado Pago: Abonado</option>
+              <option value="a_pagar">Estado Pago: A Pagar</option>
+              <option value="resta_abonar">Estado Pago: Resta Abonar</option>
+            </select>
+          </div>
+
+          {filtersActive && (
+            <button
+              className="btn-clear-filters"
+              onClick={resetFilters}
+              title="Borrar filtros"
+            >
+              <Trash2 size={18} color="var(--danger-color)" />
+            </button>
+          )}
         </div>
       </div>
 
       {filteredPedidos.length > 0 ? (
-        <div className="pedidos-list">
-          <div className="pedidos-list-header">
-            <div className="pedido-column" style={{ textAlign: "center" }}>
-              Número
-            </div>
-            <div className="pedido-column" style={{ textAlign: "center" }}>
-              Cliente
-            </div>
-            <div className="pedido-column" style={{ textAlign: "center" }}>
-              Domicilio
-            </div>
-            <div className="pedido-column" style={{ textAlign: "center" }}>
-              Fecha Entrega
-            </div>
-            <div className="pedido-column" style={{ textAlign: "center" }}>
-              Total
-            </div>
-            <div className="pedido-column" style={{ textAlign: "center" }}>
-              Estado Entrega
-            </div>
-            <div className="pedido-column" style={{ textAlign: "center" }}>
-              Estado Pago
-            </div>
-            <div className="pedido-column" style={{ textAlign: "center" }}>
-              Acciones
-            </div>
-          </div>
-
-          {filteredPedidos.map((pedido) => (
-            <div key={pedido.id} className="pedido-item">
-              <div
-                className="pedido-column"
-                data-label="Número"
-                style={{ textAlign: "center" }}
-              >
-                <FileText size={16} className="icon-inline" /> {pedido.numero}
-              </div>
-              <div
-                className="pedido-column"
-                data-label="Cliente"
-                style={{ textAlign: "center" }}
-              >
-                {pedido.cliente_nombre}
-              </div>
-              <div
-                className="pedido-column"
-                data-label="Domicilio"
-                style={{ textAlign: "center" }}
-              >
-                {pedido.domicilio || "No especificado"}
-              </div>
-              <div
-                className="pedido-column"
-                data-label="Fecha Entrega"
-                style={{ textAlign: "center" }}
-              >
-                {pedido.fecha_entrega
-                  ? new Date(pedido.fecha_entrega).toLocaleDateString()
-                  : "No especificada"}
-              </div>
-              <div
-                className="pedido-column"
-                data-label="Total"
-                style={{ textAlign: "center" }}
-              >
-                ${Number(pedido.total).toLocaleString()}
-              </div>
-              <div
-                className="pedido-column"
-                data-label="Estado Entrega"
-                style={{ textAlign: "center" }}
-              >
-                {getEstadoEntregaLabel(pedido.estado_entrega)}
-              </div>
-              <div
-                className="pedido-column"
-                data-label="Estado Pago"
-                style={{ textAlign: "center" }}
-              >
-                {getEstadoPagoLabel(pedido.estado_pago)}
-              </div>
-              <div
-                className="pedido-column pedido-actions"
-                data-label="Acciones"
-                style={{ textAlign: "center" }}
-              >
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="action-button-trigger">
-                      <MoreVertical size={18} />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className="dropdown-menu-content"
-                  >
-                    <DropdownMenuItem className="dropdown-menu-item">
-                      <Link
-                        href={`/pedidos/${pedido.id}`}
-                        className="dropdown-menu-link"
-                      >
-                        <Eye size={16} className="dropdown-menu-icon" />
-                        <span>Ver Pedido</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="dropdown-menu-item">
-                      <Link
-                        href={`/pedidos/${pedido.id}/editar`}
-                        className="dropdown-menu-link"
-                      >
-                        <Edit size={16} className="dropdown-menu-icon" />
-                        <span>Editar Pedido</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="dropdown-menu-item">
-                      <Link
-                        href={`/pedidos/${pedido.id}`}
-                        className="dropdown-menu-link"
-                      >
-                        <FileEdit size={16} className="dropdown-menu-icon" />
-                        <span>Editar Estado</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="dropdown-menu-item dropdown-menu-item-danger"
-                      onClick={() => handleEliminarPedido(pedido.id)}
-                    >
-                      <Trash2 size={16} className="dropdown-menu-icon" />
-                      <span>Eliminar</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          ))}
+        <div className="presupuestos-table-container">
+          <table className="presupuestos-table">
+            <thead>
+              <tr>
+                <th className="column-numero">Número</th>
+                <th className="column-cliente">Cliente</th>
+                <th className="column-fecha">Fecha Entrega</th>
+                <th className="column-total">Total</th>
+                <th className="column-estado">Estado</th>
+                <th className="column-acciones">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPedidos.map((pedido) => (
+                <tr key={pedido.id} className="presupuesto-row">
+                  <td className="column-numero">
+                    <div className="numero-container">
+                      <FileText size={16} className="icon-inline" />{" "}
+                      {pedido.numero}
+                    </div>
+                  </td>
+                  <td className="column-cliente">{pedido.cliente_nombre}</td>
+                  <td className="column-fecha">
+                    {pedido.fecha_entrega
+                      ? new Date(pedido.fecha_entrega).toLocaleDateString()
+                      : "No especificada"}
+                  </td>
+                  <td className="column-total">
+                    ${Number(pedido.total).toLocaleString()}
+                  </td>
+                  <td className="column-estado">
+                    {getEstadoEntregaLabel(pedido.estado_entrega)}{" "}
+                    {getEstadoPagoLabel(pedido.estado_pago)}
+                  </td>
+                  <td className="column-acciones">
+                    <div className="acciones-container">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="btn-accion">
+                            <MoreVertical size={18} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="dropdown-menu-content"
+                        >
+                          <DropdownMenuItem className="dropdown-menu-item">
+                            <Link
+                              href={`/pedidos/${pedido.id}`}
+                              className="dropdown-menu-link"
+                            >
+                              <Eye size={16} className="dropdown-menu-icon" />
+                              <span>Ver Pedido</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="dropdown-menu-item">
+                            <Link
+                              href={`/pedidos/${pedido.id}/editar`}
+                              className="dropdown-menu-link"
+                            >
+                              <Edit size={16} className="dropdown-menu-icon" />
+                              <span>Editar Pedido</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="dropdown-menu-item">
+                            <Link
+                              href={`/pedidos/${pedido.id}`}
+                              className="dropdown-menu-link"
+                            >
+                              <FileEdit
+                                size={16}
+                                className="dropdown-menu-icon"
+                              />
+                              <span>Editar Estado</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="dropdown-menu-item dropdown-menu-item-danger"
+                            onClick={() => handleEliminarPedido(pedido.id)}
+                          >
+                            <Trash2 size={16} className="dropdown-menu-icon" />
+                            <span>Eliminar</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
-        <p className="no-data">
-          {searchQuery ||
-          estadoEntregaFilter !== "todos" ||
-          estadoPagoFilter !== "todos"
-            ? "No se encontraron pedidos con los filtros aplicados"
-            : "No hay pedidos disponibles"}
-        </p>
+        <div className="no-data-container">
+          <div className="no-data-content">
+            <FileText size={48} className="no-data-icon" />
+            <p className="no-data-message">
+              {searchQuery ||
+              estadoEntregaFilter !== "todos" ||
+              estadoPagoFilter !== "todos"
+                ? "No se encontraron pedidos con los filtros aplicados"
+                : "No hay pedidos disponibles"}
+            </p>
+            {(searchQuery ||
+              estadoEntregaFilter !== "todos" ||
+              estadoPagoFilter !== "todos") && (
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  setSearchQuery("");
+                  setEstadoEntregaFilter("todos");
+                  setEstadoPagoFilter("todos");
+                  fetchPedidos();
+                }}
+              >
+                Ver todos los pedidos
+              </button>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

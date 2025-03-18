@@ -258,6 +258,38 @@ a {
 }
 
 /* Presupuesto Container */
+/* Ajustar el ancho del contenedor para todas las páginas */
+.presupuestos-container,
+.pedidos-container,
+.choferes-container,
+.dashboard-container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Asegurar que los encabezados de todas las páginas sean consistentes */
+.presupuestos-header,
+.pedidos-header,
+.choferes-header,
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.presupuestos-header h2,
+.pedidos-header h2,
+.choferes-header h2,
+.dashboard-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: var(--primary-color);
+  text-align: center;
+  width: 100%;
+}
+
 .presupuesto-container,
 .pedidos-container,
 .choferes-container,
