@@ -1,0 +1,113 @@
+.productList {
+  width: 100%;
+}
+
+.listHeader {
+  display: flex;
+  background-color: var(--bg-gray);
+  font-weight: bold;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.column {
+  padding: 1rem;
+  flex: 1;
+  text-align: center;
+}
+
+.productNameColumn {
+  flex: 2;
+  text-align: center;
+}
+
+.productItem {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  text-align: center;
+}
+
+.trashButton {
+  color: var(--danger-color);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.trashButton:hover {
+  color: var(--danger-color-hover);
+}
+
+.iconTrash {
+  width: 20px;
+  height: 20px;
+}
+
+.totalContainer {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.totalDetails {
+  width: 300px;
+}
+
+.totalDetails p {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+}
+
+.total {
+  font-weight: bold;
+  font-size: 1.25rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.amount {
+  font-weight: 500;
+}
+
+.totalAmount {
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .listHeader {
+    display: none;
+  }
+
+  .productItem {
+    flex-direction: column;
+    padding: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .column {
+    padding: 0.5rem 0;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .column:before {
+    content: attr(data-label);
+    font-weight: bold;
+    width: 40%;
+    color: var(--text-color);
+  }
+}
+
