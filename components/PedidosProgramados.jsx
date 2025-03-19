@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import DatePickerWithHighlight from "./DatePickerWithHighlight";
+import DatePickerWithHighlight from "./DatePickerShadcn";
 
 // Importar el CSS Module
 import styles from "@/styles/pedidos.module.css";

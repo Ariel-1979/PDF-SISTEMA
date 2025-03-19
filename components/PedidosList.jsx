@@ -393,8 +393,14 @@ const PedidosList = () => {
                     ${Number(pedido.total).toLocaleString()}
                   </td>
                   <td className={styles.columnEstado} data-label="Estado">
-                    {getEstadoEntregaLabel(pedido.estado_entrega)}{" "}
-                    {getEstadoPagoLabel(pedido.estado_pago)}
+                    {pedido.estado_entrega === "entregado" ? (
+                      getEstadoEntregaLabel(pedido.estado_entrega)
+                    ) : (
+                      <>
+                        {getEstadoEntregaLabel(pedido.estado_entrega)}{" "}
+                        {getEstadoPagoLabel(pedido.estado_pago)}
+                      </>
+                    )}
                   </td>
                   <td className={styles.columnAcciones} data-label="Acciones">
                     <div className={styles.accionesContainer}>
