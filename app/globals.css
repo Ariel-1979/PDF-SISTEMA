@@ -32,7 +32,7 @@
   --border-color: #dee2e6;
   --border-radius: 8px;
   --border-radius-sm: 4px;
-  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
@@ -532,9 +532,17 @@ a {
   font-weight: 500;
 }
 
+/* Añadir o modificar el estilo para el total */
 .total-amount {
   font-weight: bold;
   color: var(--primary-color);
+}
+
+.total-final {
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.75rem;
 }
 
 .no-productos {
@@ -805,7 +813,14 @@ a {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 1.75rem;
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  transition: all 0.3s ease;
+}
+
+.presupuesto-detail-section:hover,
+.pedido-detail-section:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .presupuesto-detail-section h3,
@@ -826,14 +841,44 @@ a {
   line-height: 1.6;
 }
 
+/* Centrar el contenido en las tarjetas de detalle */
+.presupuesto-detail-client {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.presupuesto-detail-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.pedido-detail-client,
+.pedido-detail-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
 .presupuesto-detail-products,
 .pedido-detail-products {
   background-color: var(--bg-light);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 1.75rem;
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+.presupuesto-detail-products:hover,
+.pedido-detail-products:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  transform: translateY(-3px);
 }
 
 .presupuesto-detail-products h3,
@@ -1578,4 +1623,125 @@ a {
 /* Asegurar que los íconos estén alineados */
 .dropdown-menu-icon {
   flex-shrink: 0;
+}
+
+/* Add these styles to the end of the file */
+
+/* Styles for the pedido detail page */
+.detail-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.detail-row p {
+  margin: 0;
+}
+
+/* Mejorar el espaciado y alineación de los separadores */
+.detail-separator {
+  margin: 0 0.75rem;
+  color: var(--text-light);
+  display: inline-block;
+}
+
+.pedido-detail-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+}
+
+.pedido-detail-section-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--text-color);
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Mejorar el estilo de los botones inline */
+.btn-edit-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--bg-gray);
+  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+}
+
+.btn-edit-inline:hover {
+  background-color: var(--bg-gray-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-save-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-save-inline:hover {
+  background-color: var(--primary-color-hover);
+  transform: translateY(-1px);
+}
+
+.btn-save-inline:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .detail-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .detail-separator {
+    display: none;
+  }
+
+  .presupuesto-detail-client p,
+  .presupuesto-detail-meta p {
+    margin: 0.5rem 0;
+  }
+}
+
+.pedido-detail-total .total-final {
+  font-weight: bold;
+}
+
+/* Asegurar que los estilos para el total también se apliquen a la página de presupuestos */
+
+.presupuesto-detail-total .total-final {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.75rem;
+}
+
+.total-amount {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 1.1em;
 }

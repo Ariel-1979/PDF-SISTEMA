@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { ArrowLeft, FileDown, Edit } from "lucide-react";
 
 const PresupuestoDetail = ({ presupuesto }) => {
   const [converting, setConverting] = useState(false);
@@ -170,8 +171,8 @@ const PresupuestoDetail = ({ presupuesto }) => {
         const productData = [
           producto.cantidad,
           producto.nombre,
-          `$${Number(producto.precio_unitario).toLocaleString("es-AR")}`,
-          `$${Number(producto.subtotal).toLocaleString("es-AR")}`,
+          `$ ${Number(producto.precio_unitario).toLocaleString("es-AR")}`,
+          `$ ${Number(producto.subtotal).toLocaleString("es-AR")}`,
         ];
         tableRows.push(productData);
       });
@@ -220,7 +221,7 @@ const PresupuestoDetail = ({ presupuesto }) => {
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.text("TOTAL:", totalsX, totalY);
       doc.text(
-        `$${Number(presupuesto.total).toLocaleString("es-AR")}`,
+        `$ ${Number(presupuesto.total).toLocaleString("es-AR")}`,
         doc.internal.pageSize.width - 10,
         totalY,
         {
@@ -389,32 +390,40 @@ const PresupuestoDetail = ({ presupuesto }) => {
     convertirAPedido();
   };
 
+  // Calcular subtotal, IVA y descuento
+  const subtotal =
+    presupuesto.subtotal ||
+    presupuesto.productos.reduce(
+      (acc, producto) => acc + Number(producto.subtotal),
+      0
+    );
+  const ivaPorcentaje = presupuesto.iva_porcentaje?.replace("%", "") || 0;
+  const ivaMonto = presupuesto.iva_monto || 0;
+  const descuentoPorcentaje =
+    presupuesto.descuento_porcentaje?.replace("%", "") || 0;
+  const descuentoMonto = presupuesto.descuento_monto || 0;
+  const total = presupuesto.total || subtotal + ivaMonto - descuentoMonto;
+
+  // Formatear la fecha
+  const fechaCreacion = presupuesto.fecha_creacion
+    ? new Date(presupuesto.fecha_creacion).toLocaleDateString()
+    : "No especificada";
+
   return (
     <div className="presupuesto-detail-container">
       <div className="presupuesto-detail-header">
         <h2>Presupuesto #{presupuesto.numero}</h2>
         <div className="presupuesto-detail-actions">
-          <button className="btn btn-secondary" onClick={() => router.back()}>
-            Volver
-          </button>
-          <button className="btn btn-success" onClick={generarPDF}>
-            Descargar PDF
-          </button>
-          {/* Agregar log para depurar el ID usado en el enlace */}
-          <Link
-            href={`/presupuestos/${presupuestoId}/editar`}
-            className="btn btn-primary"
-            onClick={() =>
-              console.log(
-                "Navegando a editar presupuesto con ID:",
-                presupuestoId
-              )
-            }
+          <button
+            className="btn btn-secondary btn-icon"
+            onClick={() => router.back()}
           >
-            Editar Presupuesto
-          </Link>
-          <button className="btn btn-primary" onClick={handleConvertirClick}>
-            Convertir a Pedido
+            <ArrowLeft size={20} />
+            <span>Volver</span>
+          </button>
+          <button className="btn btn-success btn-icon" onClick={generarPDF}>
+            <FileDown size={20} />
+            <span>Descargar PDF</span>
           </button>
         </div>
       </div>
@@ -491,39 +500,70 @@ const PresupuestoDetail = ({ presupuesto }) => {
           <h3>Información del Cliente</h3>
           <div className="presupuesto-detail-client">
             <p>
-              <strong>Nombre:</strong> {presupuesto.nombre}
+              <strong>Nombre:</strong> {presupuesto.nombre}{" "}
+              <span className="detail-separator">|</span>{" "}
+              <strong>Teléfono:</strong>{" "}
+              {presupuesto.telefono || "No especificado"}
             </p>
             <p>
-              <strong>Domicilio:</strong> {presupuesto.domicilio}
+              <strong>Domicilio:</strong> {presupuesto.domicilio}{" "}
+              <span className="detail-separator">|</span>{" "}
+              <strong>Localidad:</strong>{" "}
+              {presupuesto.localidad || "No especificada"}
             </p>
             <p>
-              <strong>Entre calles:</strong> {presupuesto.entre_calles}
-            </p>
-            <p>
-              <strong>Teléfono:</strong> {presupuesto.telefono}
+              <strong>Entre calles:</strong>{" "}
+              {presupuesto.entre_calles || "No especificado"}
             </p>
           </div>
         </div>
 
         <div className="presupuesto-detail-section">
-          <h3>Detalles del Presupuesto</h3>
+          <div className="pedido-detail-section-header">
+            <h3>Detalles del Presupuesto</h3>
+            <button
+              className="btn-edit-inline"
+              onClick={handleConvertirClick}
+              title="Convertir a Pedido"
+            >
+              <Edit size={16} />
+              <span>Convertir a Pedido</span>
+            </button>
+          </div>
           <div className="presupuesto-detail-meta">
             <p>
-              <strong>Fecha:</strong>{" "}
-              {new Date(presupuesto.fecha_creacion).toLocaleDateString()}
+              <strong>Fecha:</strong> {fechaCreacion}
             </p>
             <p>
               <strong>Estado:</strong> Presupuesto
             </p>
             <p>
-              <strong>IVA:</strong> {presupuesto.iva_porcentaje}
+              <strong>IVA:</strong> {presupuesto.iva_porcentaje || "0%"}{" "}
+              <span className="detail-separator">|</span>{" "}
+              <strong>Descuento:</strong>{" "}
+              {presupuesto.descuento_porcentaje || "0%"}
             </p>
           </div>
         </div>
       </div>
 
       <div className="presupuesto-detail-products">
-        <h3>Productos</h3>
+        <div className="pedido-detail-section-header">
+          <h3>Detalle del Presupuesto</h3>
+          <Link
+            href={`/presupuestos/${presupuestoId}/editar`}
+            className="btn-edit-inline"
+            onClick={() =>
+              console.log(
+                "Navegando a editar presupuesto con ID:",
+                presupuestoId
+              )
+            }
+          >
+            <Edit size={16} />
+            <span>Editar Presupuesto</span>
+          </Link>
+        </div>
         <div className="presupuesto-detail-table">
           <div className="presupuesto-detail-table-header">
             <div className="presupuesto-detail-column text-center">
@@ -542,37 +582,52 @@ const PresupuestoDetail = ({ presupuesto }) => {
 
           {presupuesto.productos.map((producto) => (
             <div key={producto.id} className="presupuesto-detail-table-row">
-              <div
-                className="presupuesto-detail-column text-center"
-                data-label="Cantidad"
-              >
+              <div className="presupuesto-detail-column" data-label="Cantidad">
                 {producto.cantidad}
               </div>
               <div
-                className="presupuesto-detail-column product-name text-center"
+                className="presupuesto-detail-column product-name"
                 data-label="Producto"
               >
                 {producto.nombre}
               </div>
               <div
-                className="presupuesto-detail-column text-center"
+                className="presupuesto-detail-column"
                 data-label="Precio Unitario"
               >
-                ${Number(producto.precio_unitario).toLocaleString()}
+                $ {Number(producto.precio_unitario).toLocaleString()}
               </div>
-              <div
-                className="presupuesto-detail-column text-center"
-                data-label="Subtotal"
-              >
-                ${Number(producto.subtotal).toLocaleString()}
+              <div className="presupuesto-detail-column" data-label="Subtotal">
+                $ {Number(producto.subtotal).toLocaleString()}
               </div>
             </div>
           ))}
 
           <div className="presupuesto-detail-table-footer">
             <div className="presupuesto-detail-total">
-              <strong>Total:</strong> $
-              {Number(presupuesto.total).toLocaleString()}
+              <p>
+                <strong>Subtotal:</strong> $ {Number(subtotal).toLocaleString()}
+              </p>
+              {Number(ivaPorcentaje) > 0 && (
+                <p>
+                  <strong>IVA ({presupuesto.iva_porcentaje}):</strong> ${" "}
+                  {Number(ivaMonto).toLocaleString()}
+                </p>
+              )}
+              {Number(descuentoPorcentaje) > 0 && (
+                <p>
+                  <strong>
+                    Descuento ({presupuesto.descuento_porcentaje}):
+                  </strong>{" "}
+                  $ {Number(descuentoMonto).toLocaleString()}
+                </p>
+              )}
+              <p className="total-final">
+                <strong>Total:</strong>{" "}
+                <span className="total-amount">
+                  $ {Number(total).toLocaleString()}
+                </span>
+              </p>
             </div>
           </div>
         </div>

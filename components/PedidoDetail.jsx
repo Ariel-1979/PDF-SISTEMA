@@ -571,8 +571,22 @@ const PedidoDetail = ({ pedido }) => {
     ? new Date(pedido.fecha_entrega).toLocaleDateString()
     : "No especificada";
 
+  const getEstadoPagoLabel = (estado) => {
+    switch (estado) {
+      case "abonado":
+        return "Abonado";
+      case "a_pagar":
+        return "A Pagar";
+      case "resta_abonar":
+        return "Resta Abonar";
+      default:
+        return "Desconocido";
+    }
+  };
+
   return (
     <div className="pedido-detail-container">
+      {/* Modificar la sección de acciones en el header para quitar el botón de editar pedido */}
       <div className="pedido-detail-header">
         <h2>Pedido #{pedido.numero}</h2>
         <div className="pedido-detail-actions">
@@ -587,35 +601,6 @@ const PedidoDetail = ({ pedido }) => {
             <FileDown size={20} />
             <span>Descargar PDF</span>
           </button>
-          {/* Agregar log para depurar el ID usado en el enlace */}
-          <Link
-            href={`/pedidos/${pedidoId}/editar`}
-            className="btn btn-primary btn-icon"
-            onClick={() =>
-              console.log("Navegando a editar pedido con ID:", pedidoId)
-            }
-          >
-            <Edit size={20} />
-            <span>Editar Pedido</span>
-          </Link>
-          {!editing ? (
-            <button
-              className="btn btn-primary btn-icon"
-              onClick={() => setEditing(true)}
-            >
-              <Edit size={20} />
-              <span>Editar Estado</span>
-            </button>
-          ) : (
-            <button
-              className="btn btn-primary btn-icon"
-              onClick={handleSaveChanges}
-              disabled={saving}
-            >
-              <Save size={20} />
-              <span>{saving ? "Guardando..." : "Guardar Cambios"}</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -623,57 +608,87 @@ const PedidoDetail = ({ pedido }) => {
         <div className="pedido-detail-section">
           <h3>Información del Cliente</h3>
           <div className="pedido-detail-client">
-            <p>
-              <strong>Nombre:</strong> {pedido.nombre}
-            </p>
-            <p>
-              <strong>Domicilio:</strong> {pedido.domicilio}
-            </p>
-            <p>
-              <strong>Entre calles:</strong> {pedido.entre_calles}
-            </p>
-            <p>
-              <strong>Teléfono:</strong> {pedido.telefono}
-            </p>
-            {/* Se ha eliminado el campo IVA de la información del cliente */}
+            <div className="detail-row">
+              <p>
+                <strong>Nombre:</strong> {pedido.nombre}
+                <span className="detail-separator">|</span>
+                <strong>Teléfono:</strong>{" "}
+                {pedido.telefono || "No especificado"}
+              </p>
+            </div>
+            <div className="detail-row">
+              <p>
+                <strong>Domicilio:</strong> {pedido.domicilio}
+                <span className="detail-separator">|</span>
+                <strong>Localidad:</strong>{" "}
+                {pedido.localidad || "No especificada"}
+              </p>
+            </div>
+            <div className="detail-row">
+              <p>
+                <strong>Entre calles:</strong>{" "}
+                {pedido.entre_calles || "No especificado"}
+              </p>
+            </div>
           </div>
         </div>
 
         <div className="pedido-detail-section">
-          <h3>Detalles del Pedido</h3>
+          <div className="pedido-detail-section-header">
+            <h3>Detalles del Pedido</h3>
+            {!editing ? (
+              <button
+                className="btn-edit-inline"
+                onClick={() => setEditing(true)}
+                title="Editar Estado"
+              >
+                <Edit size={16} />
+                <span>Editar Estado</span>
+              </button>
+            ) : (
+              <button
+                className="btn-save-inline"
+                onClick={handleSaveChanges}
+                disabled={saving}
+              >
+                <Save size={16} />
+                <span>{saving ? "Guardando..." : "Guardar"}</span>
+              </button>
+            )}
+          </div>
           <div className="pedido-detail-meta">
-            <p>
-              <strong>Fecha de creación:</strong>{" "}
-              {new Date(pedido.fecha_creacion).toLocaleDateString()}
-            </p>
-            <p>
-              <strong>Fecha del pedido:</strong>{" "}
-              {pedido.fecha_conversion
-                ? new Date(pedido.fecha_conversion).toLocaleDateString()
-                : "N/A"}
-            </p>
-            <p>
-              <strong>Fecha de entrega:</strong> {mostrarFechaEntrega}
-            </p>
+            <div className="detail-row">
+              <p>
+                <strong>Fecha del pedido:</strong>{" "}
+                {pedido.fecha_conversion
+                  ? new Date(pedido.fecha_conversion).toLocaleDateString()
+                  : "N/A"}
+                <span className="detail-separator">|</span>
+                <strong>Fecha de entrega:</strong> {mostrarFechaEntrega}
+              </p>
+            </div>
 
             {!editing ? (
               <>
-                <p>
-                  <strong>Estado de entrega:</strong>{" "}
-                  {getEstadoEntregaText(pedido.estado_entrega)}
-                </p>
-                {pedido.estado_entrega === "entregado" && pedido.chofer && (
+                <div className="detail-row">
                   <p>
-                    <strong>Chofer:</strong> {pedido.chofer}
+                    <strong>Estado de entrega:</strong>{" "}
+                    {getEstadoEntregaText(pedido.estado_entrega)}
+                    {pedido.estado_entrega === "entregado" && pedido.chofer && (
+                      <>
+                        <span className="detail-separator">|</span>
+                        <strong>Chofer:</strong> {pedido.chofer}
+                      </>
+                    )}
                   </p>
-                )}
+                </div>
                 <p>
                   <strong>Estado de pago:</strong>{" "}
-                  {getEstadoPagoText(pedido.estado_pago)}
+                  {getEstadoPagoLabel(pedido.estado_pago)}
                 </p>
                 {pedido.estado_pago === "resta_abonar" && (
                   <p>
-                    <strong>Monto restante:</strong> $
+                    <strong>Monto restante:</strong> ${" "}
                     {Number(pedido.monto_restante).toLocaleString()}
                   </p>
                 )}
@@ -764,7 +779,19 @@ const PedidoDetail = ({ pedido }) => {
       </div>
 
       <div className="pedido-detail-products">
-        <h3>Productos</h3>
+        <div className="pedido-detail-section-header">
+          <h3>Detalle del Pedido</h3>
+          <Link
+            href={`/pedidos/${pedidoId}/editar`}
+            className="btn-edit-inline"
+            onClick={() =>
+              console.log("Navegando a editar pedido con ID:", pedidoId)
+            }
+          >
+            <Edit size={16} />
+            <span>Editar Pedido</span>
+          </Link>
+        </div>
         <div className="pedido-detail-table">
           <div className="pedido-detail-table-header">
             <div className="pedido-detail-column">Cantidad</div>
@@ -788,10 +815,10 @@ const PedidoDetail = ({ pedido }) => {
                 className="pedido-detail-column"
                 data-label="Precio Unitario"
               >
-                ${Number(producto.precio_unitario).toLocaleString()}
+                $ {Number(producto.precio_unitario).toLocaleString()}
               </div>
               <div className="pedido-detail-column" data-label="Subtotal">
-                ${Number(producto.subtotal).toLocaleString()}
+                $ {Number(producto.subtotal).toLocaleString()}
               </div>
             </div>
           ))}
@@ -799,16 +826,19 @@ const PedidoDetail = ({ pedido }) => {
           <div className="pedido-detail-table-footer">
             <div className="pedido-detail-total">
               <p>
-                <strong>Subtotal:</strong> ${Number(subtotal).toLocaleString()}
+                <strong>Subtotal:</strong> $ {Number(subtotal).toLocaleString()}
               </p>
               {Number.parseFloat(ivaPorcentaje) > 0 && (
                 <p>
-                  <strong>IVA ({ivaPorcentaje}):</strong> $
+                  <strong>IVA ({ivaPorcentaje}):</strong> ${" "}
                   {Number(ivaMonto).toLocaleString()}
                 </p>
               )}
               <p className="total-final">
-                <strong>Total:</strong> ${Number(total).toLocaleString()}
+                <strong>Total:</strong>{" "}
+                <span className="total-amount">
+                  $ {Number(total).toLocaleString()}
+                </span>
               </p>
             </div>
           </div>
