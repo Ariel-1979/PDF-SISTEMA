@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import styles from "@/styles/ClienteForm.module.css"
+import styles from "@/styles/ClienteForm.module.css";
 
 const ClienteForm = ({ cliente, onChange }) => {
   const handleChange = (e) => {
-    const { name, value } = e.target
-    onChange({ ...cliente, [name]: value })
-  }
+    const { name, value } = e.target;
+    onChange({ ...cliente, [name]: value });
+  };
 
   return (
     <section className={styles.section}>
@@ -39,7 +39,7 @@ const ClienteForm = ({ cliente, onChange }) => {
           />
         </div>
       </div>
-      <div className={styles.formRow}>
+      <div className={styles.secondaryRow}>
         <div className={styles.formGroup}>
           <label htmlFor="localidad" className="form-label">
             Localidad
@@ -81,8 +81,7 @@ const ClienteForm = ({ cliente, onChange }) => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default ClienteForm
-
+export default ClienteForm;

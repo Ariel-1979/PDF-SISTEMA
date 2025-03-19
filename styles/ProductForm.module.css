@@ -1,5 +1,7 @@
 .productForm {
   padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: var(--border-radius);
 }
 
 .inputsContainer {
@@ -31,6 +33,14 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   font-size: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.inputGroup input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.1);
+  outline: none;
 }
 
 .addButton {
@@ -84,4 +94,3 @@
     width: 100%;
   }
 }
-

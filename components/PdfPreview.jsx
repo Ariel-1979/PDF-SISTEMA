@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { ArrowLeft, FileDown, Save } from "lucide-react"
+import { ArrowLeft, FileDown, Save } from "lucide-react";
 
 const PdfPreview = ({
   cliente,
@@ -15,7 +15,7 @@ const PdfPreview = ({
   onDownload,
   onSave,
 }) => {
-  const fecha = new Date().toLocaleDateString()
+  const fecha = new Date().toLocaleDateString();
 
   return (
     <div className="pdf-preview">
@@ -29,7 +29,9 @@ const PdfPreview = ({
           <h1>Presupuesto</h1>
           <h2>Materiales para la Construcción</h2>
           <p className="pdf-date">Fecha: {fecha}</p>
-          <p className="pdf-number">Presupuesto N°: {Date.now().toString().slice(-8)}</p>
+          <p className="pdf-number">
+            Presupuesto N°: {Date.now().toString().slice(-8)}
+          </p>
         </div>
 
         <div className="pdf-client-info">
@@ -84,7 +86,8 @@ const PdfPreview = ({
           </p>
           {Number.parseFloat(descuentoPorcentaje) > 0 && (
             <p>
-              <strong>Descuento ({descuentoPorcentaje}):</strong> -${descuento.toLocaleString()}
+              <strong>Descuento ({descuentoPorcentaje}):</strong> -$
+              {descuento.toLocaleString()}
             </p>
           )}
           {Number.parseFloat(ivaPorcentaje) > 0 && (
@@ -99,9 +102,17 @@ const PdfPreview = ({
 
         <div className="pdf-terms">
           <p>Este presupuesto tiene una validez de 24 hs.</p>
-          <p>Los precios pueden estar sujetos a modificaciones sin previo aviso.</p>
-          <p>Los cambios y devoluciones se aceptan dentro de las 24/48hs de la recepción de la compra.</p>
-          <p>Los materiales o productos de segunda selección, no tienen cambio, ni devolución.</p>
+          <p>
+            Los precios pueden estar sujetos a modificaciones sin previo aviso.
+          </p>
+          <p>
+            Los cambios y devoluciones se aceptan dentro de las 24/48hs de la
+            recepción de la compra.
+          </p>
+          <p>
+            Los materiales o productos de segunda selección, no tienen cambio,
+            ni devolución.
+          </p>
         </div>
       </div>
 
@@ -110,7 +121,11 @@ const PdfPreview = ({
           <ArrowLeft size={20} />
           <span>Volver</span>
         </button>
-        <button className="btn btn-descargar btn-icon" onClick={onDownload}>
+        <button
+          className="btn btn-descargar btn-icon"
+          onClick={onDownload}
+          title="Descargar PDF sin guardar"
+        >
           <FileDown size={20} />
           <span>Descargar PDF</span>
         </button>
@@ -120,8 +135,7 @@ const PdfPreview = ({
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PdfPreview
-
+export default PdfPreview;

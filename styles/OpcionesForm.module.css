@@ -4,7 +4,13 @@
   border-radius: var(--border-radius);
   overflow: hidden;
   background-color: var(--bg-light);
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.section:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .sectionTitle {
@@ -43,4 +49,3 @@
     max-width: 300px;
   }
 }
-

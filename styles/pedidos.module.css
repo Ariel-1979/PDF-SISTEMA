@@ -1,8 +1,8 @@
 /* Contenedor principal de filtros */
 .filtersContainer {
   display: flex;
-  align-items: flex-start;
-  gap: 2rem; /* Aumentado para separar más los grupos */
+  align-items: center;
+  gap: 1rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
 }
@@ -20,8 +20,6 @@
   align-items: center;
   gap: 0.75rem;
   flex-wrap: nowrap;
-  border-left: 1px solid var(--border-color);
-  padding-left: 1.5rem; /* Añadido para separar visualmente */
 }
 
 /* Selector de filtro */
@@ -60,7 +58,6 @@
   transition: var(--transition);
   min-width: 150px;
   height: 45px;
-  cursor: pointer;
 }
 
 .dateFilter:focus {
@@ -97,7 +94,7 @@
 .pedidosTable th,
 .pedidosTable td {
   padding: 1rem;
-  text-align: center; /* Centrado de todo el contenido */
+  text-align: left;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -141,6 +138,7 @@
 
 .columnTotal {
   width: 10%;
+  text-align: right;
 }
 
 .columnEstado {
@@ -149,12 +147,14 @@
 
 .columnAcciones {
   width: 10%;
+  text-align: center;
 }
 
 /* Contenedor de acciones */
 .accionesContainer {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 /* Dropdown de acciones */
@@ -174,32 +174,12 @@
   background-color: var(--bg-gray);
 }
 
-/* Estilos para los items del dropdown */
-.dropdownItem {
-  padding: 0 !important;
-  background-color: white !important;
-}
-
-.dropdownLink {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  width: 100%;
-  color: var(--text-color);
-}
-
-.dropdownIcon {
-  color: var(--primary-color);
-}
-
-.dropdownItem:hover {
-  background-color: var(--bg-gray) !important;
-}
-
 /* Estilos para el elemento de eliminar en el dropdown */
 .dropdownItemDanger {
   color: var(--danger-color) !important;
+  border-top: 1px solid var(--border-color);
+  margin-top: 4px;
+  padding-top: 4px;
 }
 
 .dropdownItemDanger .dropdownIcon {
@@ -208,141 +188,6 @@
 
 .dropdownItemDanger:hover {
   background-color: rgba(220, 53, 69, 0.1) !important;
-}
-
-/* Calendario personalizado */
-.calendarContainer {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 100;
-  background-color: white;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 1rem;
-  width: 300px;
-  margin-top: 0.5rem;
-}
-
-.calendarHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.calendarTitle {
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.calendarNavButton {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.25rem;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-
-.calendarNavButton:hover {
-  background-color: var(--bg-gray);
-}
-
-.calendarGrid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
-}
-
-.calendarWeekday {
-  text-align: center;
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: var(--text-light);
-  padding: 0.5rem 0;
-}
-
-.calendarDay {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-}
-
-.calendarDay:hover {
-  background-color: var(--bg-gray);
-}
-
-.calendarDaySelected {
-  background-color: var(--primary-color) !important;
-  color: white;
-}
-
-.calendarDayToday {
-  font-weight: 700;
-  border: 2px solid var(--primary-color);
-}
-
-.calendarDayOutside {
-  color: var(--text-lighter);
-}
-
-.calendarDayWithPedidos {
-  position: relative;
-}
-
-.calendarDayWithPedidos::after {
-  content: "";
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  height: 3px;
-  background-color: var(--primary-color);
-  border-radius: 2px;
-}
-
-.calendarFooter {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.calendarFooterButton {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.calendarFooterButton:hover {
-  background-color: var(--bg-gray);
-}
-
-.calendarFooterButtonPrimary {
-  background-color: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
-
-.calendarFooterButtonPrimary:hover {
-  background-color: var(--primary-color-hover);
-  border-color: var(--primary-color-hover);
 }
 
 /* Responsive */
@@ -358,11 +203,6 @@
 
   .filtersGroup {
     width: 100%;
-    border-left: none;
-    padding-left: 0;
-    margin-top: 1rem;
-    border-top: 1px solid var(--border-color);
-    padding-top: 1rem;
   }
 }
 
@@ -392,14 +232,12 @@
     align-items: center;
     border-bottom: none;
     padding: 0.5rem 0;
-    text-align: right;
   }
 
   .pedidosTable td::before {
     content: attr(data-label);
     font-weight: 600;
     margin-right: 1rem;
-    text-align: left;
   }
 
   .columnNumero,

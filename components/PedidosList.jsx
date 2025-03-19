@@ -403,7 +403,10 @@ const PedidosList = () => {
                     )}
                   </td>
                   <td className={styles.columnAcciones} data-label="Acciones">
-                    <div className={styles.accionesContainer}>
+                    <div
+                      className={styles.accionesContainer}
+                      style={{ display: "flex", justifyContent: "center" }}
+                    >
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className={styles.dropdownTrigger}>
