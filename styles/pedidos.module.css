@@ -2,7 +2,7 @@
 .filtersContainer {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 2.5rem; /* Aumentado de 1.5rem a 2.5rem para separar más los filtros de la barra de búsqueda */
   margin-bottom: 2rem;
   flex-wrap: wrap;
 }
@@ -18,7 +18,7 @@
 .filtersGroup {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.25rem; /* Aumentado de 0.75rem a 1.25rem para separar más los filtros */
   flex-wrap: nowrap;
 }
 
@@ -68,21 +68,22 @@
 
 /* Botón para limpiar filtros */
 .clearFiltersButton {
-  background-color: transparent;
-  border: none;
-  color: var(--danger-color);
-  padding: 0.5rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--danger-color);
+  padding: 0.5rem 0.75rem;
   transition: var(--transition);
   height: 45px;
+  font-size: 0.85rem;
 }
 
 .clearFiltersButton:hover {
-  transform: scale(1.15);
   background-color: rgba(220, 53, 69, 0.1);
-  border-radius: 50%;
+  border-color: var(--danger-color);
 }
 
 /* Tabla de pedidos */
@@ -91,13 +92,7 @@
   border-collapse: collapse;
 }
 
-.pedidosTable th,
-.pedidosTable td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
+/* Modificar el estilo de los encabezados de la tabla para aumentar el espaciado */
 .pedidosTable th {
   background-color: var(--bg-gray);
   font-weight: 600;
@@ -105,6 +100,15 @@
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.5px;
+  text-align: center;
+  padding: 1.25rem 1rem; /* Aumentado de 1rem a 1.25rem para dar más espacio vertical */
+}
+
+/* Ajustar también el padding de las celdas para mantener la consistencia */
+.pedidosTable td {
+  padding: 1.25rem 1rem; /* Aumentado para mantener consistencia con los encabezados */
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .pedidosTable tbody tr {
@@ -188,6 +192,50 @@
 
 .dropdownItemDanger:hover {
   background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+/* Eliminar los estilos de badges y agregar estilos para texto coloreado */
+
+/* Agregar estilos para mostrar estados en múltiples líneas */
+.estadoMultilinea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Estilos para el texto de estado */
+.estadoTexto {
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+}
+
+.estadoEntregado {
+  color: var(--accent-color); /* Verde */
+}
+
+.estadoPendiente {
+  color: #ff9933; /* Naranja */
+}
+
+.estadoAbonado {
+  color: var(--accent-color); /* Verde */
+}
+
+.estadoAPagar {
+  color: #ff9933; /* Naranja */
+}
+
+.estadoRestaAbonar {
+  color: var(--info-color); /* Azul */
+}
+
+/* Estilo para el separador de estados */
+.estadoSeparator {
+  margin: 0 0.5rem;
+  color: #666;
+  font-weight: normal;
 }
 
 /* Responsive */

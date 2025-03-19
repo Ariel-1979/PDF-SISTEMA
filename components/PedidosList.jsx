@@ -10,7 +10,6 @@ import {
   Search,
   FileText,
   MoreVertical,
-  FileEdit,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -222,18 +221,18 @@ const PedidosList = () => {
     switch (estado) {
       case "pendiente":
         return (
-          <span className="badge badge-warning badge-rounded">Pendiente</span>
+          <span className={`${styles.estadoTexto} ${styles.estadoPendiente}`}>
+            Pendiente
+          </span>
         );
       case "entregado":
         return (
-          <span className="badge badge-success badge-rounded">Entregado</span>
-        );
-      default:
-        return (
-          <span className="badge badge-secondary badge-rounded">
-            Desconocido
+          <span className={`${styles.estadoTexto} ${styles.estadoEntregado}`}>
+            Entregado
           </span>
         );
+      default:
+        return <span className={styles.estadoTexto}>Desconocido</span>;
     }
   };
 
@@ -241,22 +240,24 @@ const PedidosList = () => {
     switch (estado) {
       case "abonado":
         return (
-          <span className="badge badge-success badge-rounded">Abonado</span>
+          <span className={`${styles.estadoTexto} ${styles.estadoAbonado}`}>
+            Abonado
+          </span>
         );
       case "a_pagar":
         return (
-          <span className="badge badge-warning badge-rounded">A Pagar</span>
+          <span className={`${styles.estadoTexto} ${styles.estadoAPagar}`}>
+            A Pagar
+          </span>
         );
       case "resta_abonar":
         return (
-          <span className="badge badge-info badge-rounded">Resta Abonar</span>
-        );
-      default:
-        return (
-          <span className="badge badge-secondary badge-rounded">
-            Desconocido
+          <span className={`${styles.estadoTexto} ${styles.estadoRestaAbonar}`}>
+            Resta Abonar
           </span>
         );
+      default:
+        return <span className={styles.estadoTexto}>Desconocido</span>;
     }
   };
 
@@ -351,7 +352,8 @@ const PedidosList = () => {
               onClick={resetFilters}
               title="Borrar filtros"
             >
-              <Trash2 size={18} color="var(--danger-color)" />
+              <Trash2 size={16} color="var(--danger-color)" />
+              <span>Borrar Filtros</span>
             </button>
           )}
         </div>
@@ -390,16 +392,16 @@ const PedidosList = () => {
                     {pedido.domicilio || "No especificado"}
                   </td>
                   <td className={styles.columnTotal} data-label="Total">
-                    ${Number(pedido.total).toLocaleString()}
+                    $ {Number(pedido.total).toLocaleString()}
                   </td>
                   <td className={styles.columnEstado} data-label="Estado">
                     {pedido.estado_entrega === "entregado" ? (
                       getEstadoEntregaLabel(pedido.estado_entrega)
                     ) : (
-                      <>
-                        {getEstadoEntregaLabel(pedido.estado_entrega)}{" "}
+                      <div className={styles.estadoMultilinea}>
+                        {getEstadoEntregaLabel(pedido.estado_entrega)}
                         {getEstadoPagoLabel(pedido.estado_pago)}
-                      </>
+                      </div>
                     )}
                   </td>
                   <td className={styles.columnAcciones} data-label="Acciones">
@@ -435,25 +437,18 @@ const PedidosList = () => {
                               <span>Editar Pedido</span>
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="dropdown-menu-item">
-                            <Link
-                              href={`/pedidos/${pedido.id}`}
-                              className="dropdown-menu-link"
-                            >
-                              <FileEdit
-                                size={16}
-                                className="dropdown-menu-icon"
-                              />
-                              <span>Editar Estado</span>
-                            </Link>
-                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className={`dropdown-menu-item ${styles.dropdownItemDanger}`}
                             onClick={() => handleEliminarPedido(pedido.id)}
                           >
-                            <Trash2 size={16} className={styles.dropdownIcon} />
-                            <span>Eliminar</span>
+                            <div className="dropdown-menu-link dropdown-menu-link-danger">
+                              <Trash2
+                                size={16}
+                                className={styles.dropdownIcon}
+                              />
+                              <span>Eliminar</span>
+                            </div>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

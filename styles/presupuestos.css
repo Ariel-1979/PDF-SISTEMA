@@ -21,22 +21,29 @@
 .search-actions-container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center; /* Cambiado a center para alinear todos los elementos al centro */
   margin-bottom: 2rem;
   gap: 1rem;
 }
 
 .search-container {
+  padding-top: 0.75rem;
   flex: 1;
   max-width: 600px;
+  display: flex;
+  align-items: center;
+  height: 45px; /* Establecer altura fija igual a los elementos internos */
 }
 
 .search-form {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  width: 100%;
+  height: 100%; /* Ocupar toda la altura del contenedor */
 }
 
+/* Asegurar que la barra de búsqueda tenga una altura fija */
 .search-input-wrapper {
   display: flex;
   flex: 1;
@@ -46,6 +53,7 @@
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
+  height: 45px; /* Altura fija */
 }
 
 .search-input-wrapper:focus-within {
@@ -55,11 +63,15 @@
 
 .search-input {
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: 0 1rem;
   border: none;
   min-width: 200px;
   font-size: 1rem;
   outline: none;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  line-height: 45px; /* Igual a la altura para centrar el texto */
 }
 
 .btn-search {
@@ -69,9 +81,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem;
+  padding: 0 0.75rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  height: 100%; /* Ocupa toda la altura del contenedor */
+  min-width: 45px; /* Ancho mínimo para el botón */
 }
 
 .btn-search:hover {
@@ -92,17 +106,22 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
+  height: 45px; /* Misma altura que la barra de búsqueda */
+  display: flex;
+  align-items: center;
 }
 
 .btn-clear:hover {
   background-color: var(--bg-gray-hover);
 }
 
+/* Asegurar que el botón tenga la misma altura que la barra de búsqueda */
 .btn-nuevo-presupuesto {
   display: flex;
   align-items: center;
+  justify-content: center; /* Centrar contenido horizontalmente */
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  padding: 0 1.25rem; /* Ajustar padding horizontal manteniendo altura */
   background-color: var(--primary-color);
   color: white;
   border: none;
@@ -112,7 +131,10 @@
   font-weight: 500;
   white-space: nowrap;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 45px; /* Altura fija para alinear con la barra de búsqueda */
+  height: 45px; /* Misma altura que la barra de búsqueda */
+  line-height: 1; /* Asegurar que el texto esté centrado verticalmente */
+  margin-top: 0; /* Eliminar cualquier margen superior */
+  align-self: center; /* Centrar el botón verticalmente en el contenedor */
 }
 
 .btn-nuevo-presupuesto:hover {
@@ -138,7 +160,7 @@
 .presupuestos-table th,
 .presupuestos-table td {
   padding: 1rem;
-  text-align: left;
+  text-align: center; /* Centrar todo el contenido de la tabla */
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -164,20 +186,24 @@
 }
 
 .column-numero {
-  width: 15%;
+  width: 12%;
 }
 
 .column-cliente {
-  width: 30%;
+  width: 20%;
 }
 
 .column-fecha {
-  width: 15%;
+  width: 12%;
+}
+
+.column-domicilio {
+  width: 26%;
 }
 
 .column-total {
   width: 15%;
-  text-align: right;
+  text-align: center; /* Centrar el total */
 }
 
 .column-acciones {
@@ -189,6 +215,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  justify-content: center; /* Centrar el contenido */
 }
 
 .icon-inline {
@@ -510,11 +537,15 @@
     padding: 0.75rem;
   }
 
-  .column-fecha {
-    display: none;
+  .column-domicilio {
+    display: none; /* Ocultar la columna de domicilio en pantallas pequeñas */
   }
 
   .column-numero {
+    width: 20%;
+  }
+
+  .column-fecha {
     width: 20%;
   }
 
@@ -579,4 +610,3 @@
     justify-content: flex-end;
   }
 }
-
