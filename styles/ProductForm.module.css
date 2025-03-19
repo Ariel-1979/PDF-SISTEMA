@@ -1,51 +1,57 @@
 .productForm {
-  padding: 2rem;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: var(--border-radius);
+  padding: 1.5rem 2rem;
 }
 
-.inputsContainer {
+.inputsRow {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 1.5rem;
   width: 100%;
 }
 
-.inputGroup {
+.inputColumn {
   display: flex;
   flex-direction: column;
-  width: 150px;
+  width: 120px; /* Ancho reducido para cantidad y precio */
 }
 
-.productNameInput {
-  flex: 1;
+.productColumn {
+  flex: 2;
   min-width: 250px;
 }
 
-.inputGroup label {
+.buttonColumn {
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  align-items: center; /* Centrar horizontalmente */
+}
+
+.inputColumn label,
+.buttonColumn label {
   margin-bottom: 0.5rem;
   font-weight: 500;
+  color: var(--text-color);
 }
 
-.inputGroup input {
-  height: 45px;
-  padding: 0.625rem 0.875rem;
+.inputColumn input {
+  height: 38px; /* Altura reducida */
+  padding: 0.5rem 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  font-size: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.inputGroup input:focus {
+.inputColumn input:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.1);
   outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.1);
 }
 
 .addButton {
-  height: 45px;
-  width: 45px;
+  height: 38px; /* Misma altura que los inputs */
+  width: 38px; /* Mismo ancho que alto para hacerlo cuadrado */
   background-color: var(--primary-color);
   color: white;
   border: none;
@@ -55,30 +61,31 @@
   justify-content: center;
   cursor: pointer;
   transition: var(--transition);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-top: 0; /* Eliminar cualquier margen superior */
 }
 
 .addButton:hover {
   background-color: var(--primary-color-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 .iconAdd {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 @media (max-width: 992px) {
-  .inputsContainer {
+  .inputsRow {
     flex-wrap: wrap;
   }
 
-  .inputGroup {
+  .inputColumn {
     width: calc(50% - 0.75rem);
   }
 
-  .productNameInput {
+  .productColumn {
     width: 100%;
     order: -1;
     margin-bottom: 1rem;
@@ -86,11 +93,12 @@
 }
 
 @media (max-width: 576px) {
-  .inputsContainer {
+  .inputsRow {
     flex-direction: column;
   }
 
-  .inputGroup {
+  .inputColumn,
+  .buttonColumn {
     width: 100%;
   }
 }

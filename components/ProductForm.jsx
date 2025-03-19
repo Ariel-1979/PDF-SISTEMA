@@ -1,91 +1,95 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import styles from "@/styles/ProductForm.module.css"
+import { useState } from "react";
+import styles from "@/styles/ProductForm.module.css";
 
 const ProductForm = ({ onAgregarProducto }) => {
   const [producto, setProducto] = useState({
     cantidad: "",
     nombre: "",
     precioUnitario: "",
-  })
+  });
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setProducto({
       ...producto,
-      [name]: name === "cantidad" || name === "precioUnitario" ? (value === "" ? "" : Number(value)) : value,
-    })
-  }
+      [name]:
+        name === "cantidad" || name === "precioUnitario"
+          ? value === ""
+            ? ""
+            : Number(value)
+          : value,
+    });
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!producto.cantidad || !producto.nombre || !producto.precioUnitario) {
-      alert("Por favor complete todos los campos")
-      return
+      alert("Por favor complete todos los campos");
+      return;
     }
 
     onAgregarProducto({
       ...producto,
       subtotal: producto.cantidad * producto.precioUnitario,
-    })
+    });
 
     // Limpiar el formulario
     setProducto({
       cantidad: "",
       nombre: "",
       precioUnitario: "",
-    })
-  }
+    });
+  };
 
   return (
     <form onSubmit={handleSubmit} className={styles.productForm}>
-      <div className={styles.inputsContainer}>
-        <div className={styles.inputGroup}>
-          <label htmlFor="cantidad" className="form-label">
-            Cantidad
-          </label>
+      <div className={styles.inputsRow}>
+        <div className={styles.inputColumn}>
+          <label htmlFor="cantidad">Cantidad</label>
           <input
             type="number"
             id="cantidad"
             name="cantidad"
-            className="form-control"
             value={producto.cantidad}
             onChange={handleChange}
             min="1"
           />
         </div>
-        <div className={`${styles.inputGroup} ${styles.productNameInput}`}>
-          <label htmlFor="nombre" className="form-label">
-            Producto
-          </label>
+
+        <div className={`${styles.inputColumn} ${styles.productColumn}`}>
+          <label htmlFor="nombre">Producto</label>
           <input
             type="text"
             id="nombre"
             name="nombre"
-            className="form-control"
             value={producto.nombre}
             onChange={handleChange}
           />
         </div>
-        <div className={styles.inputGroup}>
-          <label htmlFor="precioUnitario" className="form-label">
-            Precio Unitario
-          </label>
+
+        <div className={styles.inputColumn}>
+          <label htmlFor="precioUnitario">Precio Unitario</label>
           <input
             type="number"
             id="precioUnitario"
             name="precioUnitario"
-            className="form-control"
             value={producto.precioUnitario}
             onChange={handleChange}
             min="0"
           />
         </div>
-        <div className={styles.inputGroup}>
-          <label className="form-label">Agregar</label>
-          <button type="submit" className={styles.addButton}>
+
+        {/* Modificar la estructura del botón para asegurar un mejor centrado */}
+        <div className={styles.buttonColumn}>
+          <label>Agregar</label>
+          <button
+            type="submit"
+            className={styles.addButton}
+            aria-label="Agregar producto"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -104,8 +108,7 @@ const ProductForm = ({ onAgregarProducto }) => {
         </div>
       </div>
     </form>
-  )
-}
+  );
+};
 
-export default ProductForm
-
+export default ProductForm;

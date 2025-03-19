@@ -77,146 +77,393 @@ const PedidoDetail = ({ pedido }) => {
   const total = pedido.total;
 
   // Modifica la función generarPDF para usar importación dinámica
-  // Modifica la función generarPDF para usar importación dinámica
+  // Modificar la función generarPDF para implementar los cambios solicitados
+  // Buscar la función generarPDF y reemplazar con esta versión actualizada
+
   const generarPDF = async () => {
-    // Importamos jsPDF y autoTable dinámicamente
-    const { jsPDF } = await import("jspdf");
-    const autoTable = (await import("jspdf-autotable")).default;
+    try {
+      // Importamos jsPDF y autoTable dinámicamente
+      const { jsPDF } = await import("jspdf");
+      const autoTable = (await import("jspdf-autotable")).default;
 
-    const doc = new jsPDF();
+      // Crear un nuevo documento PDF
+      const doc = new jsPDF();
 
-    // Agregar logo
-    const logoImg = new Image();
-    logoImg.src =
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo_Luongo-2yJWkbBhykRbk43ImjzWGhnPvuw3uR.png";
+      // Colores corporativos
+      const primaryColor = [255, 102, 0]; // Naranja #ff6600
+      const secondaryColor = [74, 109, 167]; // Azul #4a6da7
+      const textColor = [51, 51, 51]; // Gris oscuro #333333
 
-    await new Promise((resolve) => {
-      logoImg.onload = resolve;
-    });
+      // Agregar logo
+      const logoImg = new Image();
+      logoImg.src =
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo_Luongo-2yJWkbBhykRbk43ImjzWGhnPvuw3uR.png";
 
-    // Calcular dimensiones para mantener la proporción
-    const imgWidth = 50;
-    const imgHeight = (logoImg.height * imgWidth) / logoImg.width;
+      await new Promise((resolve) => {
+        logoImg.onload = resolve;
+      });
 
-    // Agregar logo centrado
-    doc.addImage(
-      logoImg,
-      "PNG",
-      (doc.internal.pageSize.width - imgWidth) / 2,
-      10,
-      imgWidth,
-      imgHeight
-    );
+      // Calcular dimensiones para mantener la proporción
+      const imgWidth = 50;
+      const imgHeight = (logoImg.height * imgWidth) / logoImg.width;
 
-    // Título
-    doc.setFontSize(16);
-    doc.text("Pedido", 105, 40, { align: "center" });
-    doc.text("Materiales para la Construcción", 105, 48, { align: "center" });
-
-    // Número de pedido
-    doc.setFontSize(14);
-    doc.text(`Pedido N°: ${pedido.numero}`, 105, 60, { align: "center" });
-
-    // Información del cliente
-    doc.setFontSize(12);
-    doc.text(`Cliente: ${pedido.nombre}`, 20, 70);
-    doc.text(`Domicilio: ${pedido.domicilio}`, 20, 78);
-    doc.text(`Entre calles: ${pedido.entre_calles}`, 20, 86);
-    doc.text(`Teléfono: ${pedido.telefono}`, 20, 94);
-
-    // Fecha
-    const fecha = new Date(
-      pedido.fecha_conversion || pedido.fecha_creacion
-    ).toLocaleDateString();
-    doc.text(`Fecha: ${fecha}`, 150, 70);
-
-    // Fecha de entrega
-    if (pedido.fecha_entrega) {
-      doc.text(
-        `Fecha de entrega: ${new Date(
-          pedido.fecha_entrega
-        ).toLocaleDateString()}`,
-        150,
-        78
+      // Agregar logo centrado
+      doc.addImage(
+        logoImg,
+        "PNG",
+        (doc.internal.pageSize.width - imgWidth) / 2,
+        10,
+        imgWidth,
+        imgHeight
       );
-    } else {
-      doc.text(`Fecha de entrega: Pendiente`, 150, 78);
-    }
 
-    // Estado de pago
-    doc.text(
-      `Estado de pago: ${getEstadoPagoText(pedido.estado_pago)}`,
-      150,
-      86
-    );
+      // Encabezado - Orden cambiado según lo solicitado
+      doc.setFontSize(14);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.text("Materiales para la Construcción", 105, 40, { align: "center" });
 
-    if (pedido.estado_pago === "resta_abonar") {
+      doc.setFontSize(22);
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text("PEDIDO", 105, 50, { align: "center" });
+
+      // Número de pedido y fecha en el mismo renglón
+      const fecha = new Date(
+        pedido.fecha_conversion || pedido.fecha_creacion
+      ).toLocaleDateString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+      doc.setFontSize(10);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.text(`NÚMERO: ${pedido.numero}   |   FECHA: ${fecha}`, 105, 62, {
+        align: "center",
+      });
+
+      // Fecha de entrega si existe
+      if (pedido.fecha_entrega) {
+        doc.text(
+          `FECHA DE ENTREGA: ${new Date(
+            pedido.fecha_entrega
+          ).toLocaleDateString("es-AR")}`,
+          105,
+          70,
+          {
+            align: "center",
+          }
+        );
+      }
+
+      // Información del cliente - En negrita sin fondo naranja
+      doc.setFontSize(12);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setFont(undefined, "bold");
+      doc.text("INFORMACIÓN DEL CLIENTE", 15, 80);
+      doc.setFont(undefined, "normal");
+
+      doc.setFontSize(10);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+      // Organizar datos del cliente en dos columnas para aprovechar espacio
+      let leftColY = 90;
+      let rightColY = 90;
+      const midPoint = doc.internal.pageSize.width / 2;
+
+      // Columna izquierda
+      doc.text(`Cliente: ${pedido.nombre}`, 15, leftColY);
+      leftColY += 7;
+
+      if (pedido.domicilio) {
+        doc.text(`Domicilio: ${pedido.domicilio}`, 15, leftColY);
+        leftColY += 7;
+      }
+
+      // Columna derecha
+      if (pedido.entre_calles) {
+        doc.text(
+          `Entre calles: ${pedido.entre_calles}`,
+          midPoint + 5,
+          rightColY
+        );
+        rightColY += 7;
+      }
+
+      if (pedido.telefono) {
+        doc.text(`Teléfono: ${pedido.telefono}`, midPoint + 5, rightColY);
+        rightColY += 7;
+      }
+
+      // Estado de entrega y pago
+      const estadoY = Math.max(leftColY, rightColY) + 5;
+
+      doc.setFontSize(10);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setFont(undefined, "bold");
+      doc.text("ESTADO:", 15, estadoY);
+
+      // Estado de entrega
+      const estadoEntregaText = getEstadoEntregaText(pedido.estado_entrega);
       doc.text(
-        `Monto restante: $${Number(pedido.monto_restante).toLocaleString()}`,
-        150,
-        94
+        `${estadoEntregaText} | ${getEstadoPagoText(pedido.estado_pago)}`,
+        70,
+        estadoY
       );
-    }
+      doc.setFont(undefined, "normal");
 
-    // Tabla de productos
-    const tableColumn = ["Cantidad", "Producto", "Precio Unitario", "Subtotal"];
-    const tableRows = [];
+      // Monto restante si aplica
+      let yPos = estadoY + 10;
+      if (pedido.estado_pago === "resta_abonar") {
+        doc.setFontSize(10);
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.text(
+          `Monto restante: $${Number(pedido.monto_restante).toLocaleString(
+            "es-AR"
+          )}`,
+          15,
+          yPos
+        );
+        yPos += 7;
+      }
 
-    pedido.productos.forEach((producto) => {
-      const productData = [
-        producto.cantidad,
-        producto.nombre,
-        `$${Number(producto.precio_unitario).toLocaleString()}`,
-        `$${Number(producto.subtotal).toLocaleString()}`,
+      // Chofer si está entregado
+      if (pedido.estado_entrega === "entregado" && pedido.chofer) {
+        doc.setFontSize(10);
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.text(`Entregado por: ${pedido.chofer}`, 15, yPos);
+        yPos += 7;
+      }
+
+      yPos += 5;
+
+      // Detalle de productos - En negrita sin fondo naranja
+      doc.setFontSize(12);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setFont(undefined, "bold");
+      doc.text("DETALLE DE PRODUCTOS", 15, yPos);
+      doc.setFont(undefined, "normal");
+
+      yPos += 10;
+
+      // Preparar datos para la tabla
+      const tableColumn = [
+        "Cantidad",
+        "Producto",
+        "Precio Unitario",
+        "Subtotal",
       ];
-      tableRows.push(productData);
-    });
+      const tableRows = [];
 
-    // Usar autoTable como función independiente en lugar de método
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 110,
-      theme: "grid",
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [255, 102, 0] },
-    });
+      pedido.productos.forEach((producto) => {
+        const productData = [
+          producto.cantidad,
+          producto.nombre,
+          `$${Number(producto.precio_unitario).toLocaleString("es-AR")}`,
+          `$${Number(producto.subtotal).toLocaleString("es-AR")}`,
+        ];
+        tableRows.push(productData);
+      });
 
-    // Subtotal, IVA y Total
-    const finalY = doc.lastAutoTable.finalY || 110;
+      // Usar autoTable como función independiente
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: yPos,
+        theme: "grid",
+        styles: {
+          fontSize: 9,
+          cellPadding: 3,
+          lineColor: [200, 200, 200],
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: secondaryColor,
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          halign: "center",
+        },
+        columnStyles: {
+          0: { halign: "center", cellWidth: 20 },
+          1: { halign: "left" },
+          2: { halign: "right", cellWidth: 35 },
+          3: { halign: "right", cellWidth: 35 },
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245],
+        },
+      });
 
-    doc.text(
-      `Subtotal: $${Number(subtotal).toLocaleString()}`,
-      150,
-      finalY + 10
-    );
+      // Totales - Mejorar padding/margin
+      const finalY = doc.lastAutoTable.finalY + 10;
 
-    if (Number.parseFloat(ivaPorcentaje) > 0) {
+      // Ajustar el ancho y posición de los totales
+      const totalsWidth = 80;
+      const totalsX = doc.internal.pageSize.width - totalsWidth - 10; // 10 es el margen derecho
+
+      let totalY = finalY;
+
+      // Subtotal
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Subtotal:", totalsX, totalY);
+
+      doc.setFontSize(10);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
       doc.text(
-        `IVA (${ivaPorcentaje}): $${Number(ivaMonto).toLocaleString()}`,
-        150,
-        finalY + 18
+        `$${Number(subtotal).toLocaleString("es-AR")}`,
+        doc.internal.pageSize.width - 10,
+        totalY,
+        {
+          align: "right",
+        }
       );
-      doc.text(`Total: $${Number(total).toLocaleString()}`, 150, finalY + 26);
-    } else {
-      doc.text(`Total: $${Number(total).toLocaleString()}`, 150, finalY + 18);
+
+      // IVA (si aplica)
+      if (Number.parseFloat(ivaPorcentaje) > 0) {
+        totalY += 8;
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`IVA (${ivaPorcentaje}):`, totalsX, totalY);
+
+        doc.setFontSize(10);
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.text(
+          `$${Number(ivaMonto).toLocaleString("es-AR")}`,
+          doc.internal.pageSize.width - 10,
+          totalY,
+          {
+            align: "right",
+          }
+        );
+      }
+
+      // Total final - En negrita sin fondo naranja
+      totalY += 10;
+
+      doc.setFontSize(11);
+      doc.setFont(undefined, "bold");
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text("TOTAL:", totalsX, totalY);
+      doc.text(
+        `$${Number(total).toLocaleString("es-AR")}`,
+        doc.internal.pageSize.width - 10,
+        totalY,
+        {
+          align: "right",
+        }
+      );
+      doc.setFont(undefined, "normal");
+
+      // Información de contacto y términos
+      const contactY = Math.max(finalY + 50, totalY + 20);
+
+      // Línea divisoria
+      doc.setDrawColor(200, 200, 200);
+      doc.line(10, contactY, doc.internal.pageSize.width - 10, contactY);
+
+      // Términos y condiciones
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text(
+        "Los cambios y devoluciones se aceptan dentro de las 24/48hs de la recepción de la compra.",
+        10,
+        contactY + 10
+      );
+      doc.text(
+        "Los materiales o productos de segunda selección, no tienen cambio, ni devolución.",
+        10,
+        contactY + 15
+      );
+
+      // Información de contacto actualizada
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text(
+        "Casa Luongo - Materiales para la Construcción",
+        10,
+        contactY + 25
+      );
+      doc.text(
+        "Tel: (011) 4209-2699 | WhatsApp 11 6633 1765",
+        10,
+        contactY + 30
+      );
+      doc.text(
+        "Aristóbulo del Valle Nro. 3360 - Villa Diamante - Lanús Oeste",
+        10,
+        contactY + 35
+      );
+
+      // Asegurar que los términos y condiciones aparezcan al final de la última página
+      doc.setPage(doc.getNumberOfPages() - 1); // Ir a la última página
+      const pageHeight = doc.internal.pageSize.height;
+      const currentY = doc.lastAutoTable
+        ? doc.lastAutoTable.finalY + 10
+        : finalY + 10;
+      const footerHeight = 60; // Altura aproximada que necesitamos para el pie de página
+
+      // Si no hay suficiente espacio en la página actual, agregar una nueva
+      if (currentY + footerHeight > pageHeight - 20) {
+        doc.addPage();
+      }
+
+      // Calcular la posición Y para el pie de página (cerca del final de la página)
+      const footerY = pageHeight - footerHeight;
+
+      // Línea divisoria
+      doc.setDrawColor(200, 200, 200);
+      doc.line(10, footerY, doc.internal.pageSize.width - 10, footerY);
+
+      // Términos y condiciones
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text(
+        "Este presupuesto tiene una validez de 24 hs.",
+        10,
+        footerY + 10
+      );
+      doc.text(
+        "Los precios pueden estar sujetos a modificaciones sin previo aviso.",
+        10,
+        footerY + 15
+      );
+      doc.text(
+        "Los cambios y devoluciones se aceptan dentro de las 24/48hs de la recepción de la compra.",
+        10,
+        footerY + 20
+      );
+      doc.text(
+        "Los materiales o productos de segunda selección, no tienen cambio, ni devolución.",
+        10,
+        footerY + 25
+      );
+
+      // Información de contacto actualizada
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text(
+        "Casa Luongo - Materiales para la Construcción",
+        10,
+        footerY + 35
+      );
+      doc.text(
+        "Tel: (011) 4209-2699 | WhatsApp 11 6633 1765",
+        10,
+        footerY + 40
+      );
+      doc.text(
+        "Aristóbulo del Valle Nro. 3360 - Villa Diamante - Lanús Oeste",
+        10,
+        footerY + 45
+      );
+
+      // Guardar el PDF
+      doc.save(`Pedido_${pedido.numero}_${Date.now()}.pdf`);
+      showToast("PDF generado correctamente", "success");
+    } catch (error) {
+      console.error("Error al generar PDF:", error);
+      showToast("Error al generar el PDF: " + error.message, "error");
     }
-
-    // Términos y condiciones
-    doc.setFontSize(8);
-    doc.text(
-      "Los cambios y devoluciones se aceptan dentro de las 24/48hs de la recepción de la compra.",
-      20,
-      finalY + 40
-    );
-    doc.text(
-      "Los materiales o productos de segunda selección, no tienen cambio, ni devolución.",
-      20,
-      finalY + 45
-    );
-
-    doc.save(`pedido-${pedido.numero}.pdf`);
-    showToast("PDF generado correctamente", "success");
   };
 
   const getEstadoPagoText = (estado) => {
@@ -336,7 +583,7 @@ const PedidoDetail = ({ pedido }) => {
             <ArrowLeft size={20} />
             <span>Volver</span>
           </button>
-          <button className="btn btn-descargar btn-icon" onClick={generarPDF}>
+          <button className="btn btn-success btn-icon" onClick={generarPDF}>
             <FileDown size={20} />
             <span>Descargar PDF</span>
           </button>

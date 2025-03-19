@@ -38,6 +38,8 @@
   align-items: center;
   justify-content: center;
   transition: var(--transition);
+  margin: 0 auto; /* Centrar horizontalmente */
+  width: 100%; /* Ocupar todo el ancho disponible */
 }
 
 .trashButton:hover {
@@ -47,6 +49,7 @@
 .iconTrash {
   width: 20px;
   height: 20px;
+  margin: 0 auto; /* Centrar el ícono */
 }
 
 .totalContainer {
@@ -111,3 +114,8 @@
   }
 }
 
+.column:last-child {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
