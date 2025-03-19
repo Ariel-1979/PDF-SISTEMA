@@ -56,7 +56,7 @@ const Header = () => {
         {isClient && (
           <>
             <nav className="main-nav">
-              <Link href="/" className={`nav-link ${pathname === "/" ? "active-link" : ""}`}>
+              <Link href="/dashboard" className={`nav-link ${pathname === "/dashboard" ? "active-link" : ""}`}>
                 Inicio
               </Link>
               <Link

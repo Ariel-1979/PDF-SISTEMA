@@ -1,3 +1,5 @@
+@tailwind components;
+@tailwind utilities;
 @import "./variables.css";
 
 /* Reset y estilos base */
@@ -727,4 +729,3 @@ a {
     font-size: 0.85rem;
   }
 }
-

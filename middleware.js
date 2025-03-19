@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { verify } from "jsonwebtoken"
 
 // Rutas que no requieren autenticación
-const publicRoutes = ["/login", "/_next", "/favicon.ico"]
+const publicRoutes = ["/", "/_next", "/favicon.ico", "/Logo_Luongo.png"]
 
 // Rutas que requieren rol de administrador
 const adminRoutes = ["/admin"]
@@ -27,7 +27,7 @@ export function middleware(request) {
   const token = request.cookies.get("auth_token")?.value
 
   if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url))
+    return NextResponse.redirect(new URL("/", request.url))
   }
 
   try {
@@ -42,7 +42,7 @@ export function middleware(request) {
     return NextResponse.next()
   } catch (error) {
     // Token inválido o expirado
-    return NextResponse.redirect(new URL("/login", request.url))
+    return NextResponse.redirect(new URL("/", request.url))
   }
 }
 
