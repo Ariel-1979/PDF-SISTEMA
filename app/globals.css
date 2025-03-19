@@ -94,11 +94,12 @@ a {
   font-weight: bold;
   display: flex;
   align-items: center;
+  justify-content: center;
+  margin-top: 0.75rem;
 }
 
 .logo img {
-  height: 40px;
-  margin-right: 0.75rem;
+  height: 50px;
 }
 
 .main-nav {

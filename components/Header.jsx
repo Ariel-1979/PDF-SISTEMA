@@ -1,78 +1,99 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useState, useEffect } from "react"
-import { LogOut, User, LogIn } from "lucide-react"
-import { useRouter } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import { LogOut, User, LogIn } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
-  const pathname = usePathname()
-  const router = useRouter()
-  const [user, setUser] = useState(null)
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [isClient, setIsClient] = useState(false)
+  const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true)
+    setIsClient(true);
     // Obtener información del usuario desde localStorage
     try {
-      const storedUser = localStorage.getItem("user")
+      const storedUser = localStorage.getItem("user");
       if (storedUser) {
-        setUser(JSON.parse(storedUser))
+        setUser(JSON.parse(storedUser));
       }
     } catch (error) {
-      console.error("Error al obtener usuario:", error)
+      console.error("Error al obtener usuario:", error);
     }
-  }, [])
+  }, []);
 
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", {
         method: "POST",
-      })
+      });
 
       // Limpiar localStorage
-      localStorage.removeItem("user")
-      setUser(null)
+      localStorage.removeItem("user");
+      setUser(null);
 
       // Redireccionar a login
-      router.push("/login")
+      router.push("/login");
     } catch (error) {
-      console.error("Error al cerrar sesión:", error)
+      console.error("Error al cerrar sesión:", error);
     }
-  }
+  };
 
   return (
     <header className="header">
       <div className="container header-container">
         <h1 className="logo">
-          <Link href="/">
-            <img src="/Logo_Luongo.png" alt="Casa Luongo Logo" width={40} height={40} />
-            <span className="ml-2">Casa Luongo</span>
+          <Link href="/dashboard">
+            <img src="/Logo_Luongo.png" alt="Casa Luongo Logo" />
           </Link>
         </h1>
 
         {isClient && (
           <>
             <nav className="main-nav">
-              <Link href="/dashboard" className={`nav-link ${pathname === "/dashboard" ? "active-link" : ""}`}>
+              <Link
+                href="/dashboard"
+                className={`nav-link ${
+                  pathname === "/dashboard" ? "active-link" : ""
+                }`}
+              >
                 Inicio
               </Link>
               <Link
                 href="/presupuestos"
-                className={`nav-link ${pathname.startsWith("/presupuestos") ? "active-link" : ""}`}
+                className={`nav-link ${
+                  pathname.startsWith("/presupuestos") ? "active-link" : ""
+                }`}
               >
                 Presupuestos
               </Link>
-              <Link href="/pedidos" className={`nav-link ${pathname.startsWith("/pedidos") ? "active-link" : ""}`}>
+              <Link
+                href="/pedidos"
+                className={`nav-link ${
+                  pathname.startsWith("/pedidos") ? "active-link" : ""
+                }`}
+              >
                 Pedidos
               </Link>
-              <Link href="/choferes" className={`nav-link ${pathname.startsWith("/choferes") ? "active-link" : ""}`}>
+              <Link
+                href="/choferes"
+                className={`nav-link ${
+                  pathname.startsWith("/choferes") ? "active-link" : ""
+                }`}
+              >
                 Choferes
               </Link>
               {user?.role === "admin" && (
-                <Link href="/admin" className={`nav-link ${pathname.startsWith("/admin") ? "active-link" : ""}`}>
+                <Link
+                  href="/admin"
+                  className={`nav-link ${
+                    pathname.startsWith("/admin") ? "active-link" : ""
+                  }`}
+                >
                   Admin
                 </Link>
               )}
@@ -120,8 +141,7 @@ const Header = () => {
         )}
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
-
+export default Header;
