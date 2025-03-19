@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "Casa Luongo - Sistema de Presupuestos",
   description: "Sistema de gestión de presupuestos y pedidos para Casa Luongo",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({ children }) {
@@ -20,6 +20,8 @@ export default function RootLayout({ children }) {
     </html>
   )
 }
+
+import "./globals.css"
 
 
 

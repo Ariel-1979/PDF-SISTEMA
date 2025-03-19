@@ -1,248 +1,204 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Eye,
-  Trash2,
-  Edit,
-  Search,
-  FileText,
-  MoreVertical,
-  FileEdit,
-} from "lucide-react";
-import { toast } from "sonner";
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { useToast } from "@/hooks/use-toast"
+import { Eye, Trash2, Edit, Search, FileText, MoreVertical, FileEdit } from "lucide-react"
+import { toast } from "sonner"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 
 const PedidosList = () => {
-  const [pedidos, setPedidos] = useState([]);
-  const [filteredPedidos, setFilteredPedidos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searching, setSearching] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [estadoEntregaFilter, setEstadoEntregaFilter] = useState("pendiente"); // Filtro inicial: pendiente
-  const [estadoPagoFilter, setEstadoPagoFilter] = useState("todos");
-  const [filtersActive, setFiltersActive] = useState(true); // Para controlar si hay filtros activos
-  const { showToast } = useToast();
+  const [pedidos, setPedidos] = useState([])
+  const [filteredPedidos, setFilteredPedidos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searching, setSearching] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [estadoEntregaFilter, setEstadoEntregaFilter] = useState("pendiente") // Filtro inicial: pendiente
+  const [estadoPagoFilter, setEstadoPagoFilter] = useState("todos")
+  const [filtersActive, setFiltersActive] = useState(true) // Para controlar si hay filtros activos
+  const { showToast } = useToast()
 
   useEffect(() => {
-    fetchPedidos();
-  }, []);
+    fetchPedidos()
+  }, [])
 
   useEffect(() => {
     // Aplicar filtros cuando cambian los pedidos o los filtros
-    applyFilters();
+    applyFilters()
 
     // Verificar si hay filtros activos
-    setFiltersActive(
-      estadoEntregaFilter !== "todos" || estadoPagoFilter !== "todos"
-    );
-  }, [pedidos, estadoEntregaFilter, estadoPagoFilter, searchQuery]);
+    setFiltersActive(estadoEntregaFilter !== "todos" || estadoPagoFilter !== "todos")
+  }, [pedidos, estadoEntregaFilter, estadoPagoFilter, searchQuery])
 
   const fetchPedidos = async () => {
     try {
-      setLoading(true);
-      const res = await fetch("/api/pedidos");
+      setLoading(true)
+      const res = await fetch("/api/pedidos")
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Error al cargar pedidos");
+        const errorData = await res.json()
+        throw new Error(errorData.error || "Error al cargar pedidos")
       }
 
-      const data = await res.json();
-      const pedidosData = Array.isArray(data) ? data : [];
+      const data = await res.json()
+      const pedidosData = Array.isArray(data) ? data : []
 
       // Verificar los datos recibidos para el campo domicilio
-      console.log("Datos de pedidos recibidos:", pedidosData.slice(0, 2));
+      console.log("Datos de pedidos recibidos:", pedidosData.slice(0, 2))
 
-      setPedidos(pedidosData);
+      setPedidos(pedidosData)
 
       // Aplicar filtro inicial de pendientes
-      setFilteredPedidos(
-        pedidosData.filter((pedido) => pedido.estado_entrega === "pendiente")
-      );
+      setFilteredPedidos(pedidosData.filter((pedido) => pedido.estado_entrega === "pendiente"))
     } catch (error) {
-      console.error("Error al cargar pedidos:", error);
-      showToast("Error al cargar pedidos: " + error.message, "error");
+      console.error("Error al cargar pedidos:", error)
+      showToast("Error al cargar pedidos: " + error.message, "error")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const applyFilters = () => {
-    let result = [...pedidos];
+    let result = [...pedidos]
 
     // Filtrar por estado de entrega
     if (estadoEntregaFilter !== "todos") {
-      result = result.filter(
-        (pedido) => pedido.estado_entrega === estadoEntregaFilter
-      );
+      result = result.filter((pedido) => pedido.estado_entrega === estadoEntregaFilter)
     }
 
     // Filtrar por estado de pago
     if (estadoPagoFilter !== "todos") {
-      result = result.filter(
-        (pedido) => pedido.estado_pago === estadoPagoFilter
-      );
+      result = result.filter((pedido) => pedido.estado_pago === estadoPagoFilter)
     }
 
     // Filtrar por búsqueda
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
+      const query = searchQuery.toLowerCase().trim()
       result = result.filter(
         (pedido) =>
           (pedido.numero && pedido.numero.toLowerCase().includes(query)) ||
-          (pedido.cliente_nombre &&
-            pedido.cliente_nombre.toLowerCase().includes(query)) ||
-          (pedido.domicilio && pedido.domicilio.toLowerCase().includes(query))
-      );
+          (pedido.cliente_nombre && pedido.cliente_nombre.toLowerCase().includes(query)) ||
+          (pedido.domicilio && pedido.domicilio.toLowerCase().includes(query)),
+      )
     }
 
-    setFilteredPedidos(result);
-  };
+    setFilteredPedidos(result)
+  }
 
   const resetFilters = () => {
-    setEstadoEntregaFilter("todos");
-    setEstadoPagoFilter("todos");
+    setEstadoEntregaFilter("todos")
+    setEstadoPagoFilter("todos")
     // No reseteamos la búsqueda, solo los filtros de estado
-  };
+  }
 
   const handleSearch = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!searchQuery.trim()) {
       // Si la búsqueda está vacía, aplicar solo los filtros actuales
-      applyFilters();
-      return;
+      applyFilters()
+      return
     }
 
     try {
-      setSearching(true);
-      setLoading(true);
+      setSearching(true)
+      setLoading(true)
 
-      console.log("Buscando pedidos con término:", searchQuery.trim());
-      const res = await fetch(
-        `/api/pedidos?query=${encodeURIComponent(searchQuery.trim())}`
-      );
+      console.log("Buscando pedidos con término:", searchQuery.trim())
+      const res = await fetch(`/api/pedidos?query=${encodeURIComponent(searchQuery.trim())}`)
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Error al buscar pedidos");
+        const errorData = await res.json()
+        throw new Error(errorData.error || "Error al buscar pedidos")
       }
 
-      const data = await res.json();
-      console.log("Resultados de búsqueda:", data);
-      setPedidos(Array.isArray(data) ? data : []);
+      const data = await res.json()
+      console.log("Resultados de búsqueda:", data)
+      setPedidos(Array.isArray(data) ? data : [])
       // Los filtros se aplicarán automáticamente en el useEffect
     } catch (error) {
-      console.error("Error al buscar pedidos:", error);
-      showToast("Error al buscar pedidos: " + error.message, "error");
+      console.error("Error al buscar pedidos:", error)
+      showToast("Error al buscar pedidos: " + error.message, "error")
     } finally {
-      setLoading(false);
-      setSearching(false);
+      setLoading(false)
+      setSearching(false)
     }
-  };
+  }
 
   const handleEliminarPedido = (id) => {
     toast.custom(
       (t) => (
         <div className="sonner-toast-custom">
-          <p className="confirmation-title">
-            ¿Está seguro de eliminar este pedido?
-          </p>
-          <p className="confirmation-subtitle">
-            Esta acción no se puede deshacer.
-          </p>
+          <p className="confirmation-title">¿Está seguro de eliminar este pedido?</p>
+          <p className="confirmation-subtitle">Esta acción no se puede deshacer.</p>
           <div className="toast-actions">
             <button
               className="btn btn-small btn-danger"
               onClick={() => {
-                toast.dismiss(t);
-                confirmarEliminarPedido(id);
+                toast.dismiss(t)
+                confirmarEliminarPedido(id)
               }}
             >
               Eliminar
             </button>
-            <button
-              className="btn btn-small btn-secondary"
-              onClick={() => toast.dismiss(t)}
-            >
+            <button className="btn btn-small btn-secondary" onClick={() => toast.dismiss(t)}>
               Cancelar
             </button>
           </div>
         </div>
       ),
-      { duration: 10000 }
-    );
-  };
+      { duration: 10000 },
+    )
+  }
 
   const confirmarEliminarPedido = async (id) => {
     try {
       const res = await fetch(`/api/pedidos/${id}`, {
         method: "DELETE",
-      });
+      })
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Error al eliminar el pedido");
+        const errorData = await res.json()
+        throw new Error(errorData.error || "Error al eliminar el pedido")
       }
 
-      showToast("Pedido eliminado correctamente", "success");
-      fetchPedidos();
+      showToast("Pedido eliminado correctamente", "success")
+      fetchPedidos()
     } catch (error) {
-      console.error("Error al eliminar pedido:", error);
-      showToast("Error al eliminar el pedido: " + error.message, "error");
+      console.error("Error al eliminar pedido:", error)
+      showToast("Error al eliminar el pedido: " + error.message, "error")
     }
-  };
+  }
 
   const getEstadoEntregaLabel = (estado) => {
     switch (estado) {
       case "pendiente":
-        return (
-          <span className="badge badge-warning badge-rounded">Pendiente</span>
-        );
+        return <span className="badge badge-warning badge-rounded">Pendiente</span>
       case "entregado":
-        return (
-          <span className="badge badge-success badge-rounded">Entregado</span>
-        );
+        return <span className="badge badge-success badge-rounded">Entregado</span>
       default:
-        return (
-          <span className="badge badge-secondary badge-rounded">
-            Desconocido
-          </span>
-        );
+        return <span className="badge badge-secondary badge-rounded">Desconocido</span>
     }
-  };
+  }
 
   const getEstadoPagoLabel = (estado) => {
     switch (estado) {
       case "abonado":
-        return (
-          <span className="badge badge-success badge-rounded">Abonado</span>
-        );
+        return <span className="badge badge-success badge-rounded">Abonado</span>
       case "a_pagar":
-        return (
-          <span className="badge badge-warning badge-rounded">A Pagar</span>
-        );
+        return <span className="badge badge-warning badge-rounded">A Pagar</span>
       case "resta_abonar":
-        return (
-          <span className="badge badge-info badge-rounded">Resta Abonar</span>
-        );
+        return <span className="badge badge-info badge-rounded">Resta Abonar</span>
       default:
-        return (
-          <span className="badge badge-secondary badge-rounded">
-            Desconocido
-          </span>
-        );
+        return <span className="badge badge-secondary badge-rounded">Desconocido</span>
     }
-  };
+  }
 
   if (loading && !searching) {
     return (
@@ -252,7 +208,7 @@ const PedidosList = () => {
           <p>Cargando...</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -281,8 +237,8 @@ const PedidosList = () => {
                 type="button"
                 className="btn-clear"
                 onClick={() => {
-                  setSearchQuery("");
-                  fetchPedidos();
+                  setSearchQuery("")
+                  fetchPedidos()
                 }}
               >
                 Limpiar
@@ -322,11 +278,7 @@ const PedidosList = () => {
           </div>
 
           {filtersActive && (
-            <button
-              className="btn-clear-filters"
-              onClick={resetFilters}
-              title="Borrar filtros"
-            >
+            <button className="btn-clear-filters" onClick={resetFilters} title="Borrar filtros">
               <Trash2 size={18} color="var(--danger-color)" />
             </button>
           )}
@@ -351,22 +303,16 @@ const PedidosList = () => {
                 <tr key={pedido.id} className="presupuesto-row">
                   <td className="column-numero">
                     <div className="numero-container">
-                      <FileText size={16} className="icon-inline" />{" "}
-                      {pedido.numero}
+                      <FileText size={16} className="icon-inline" /> {pedido.numero}
                     </div>
                   </td>
                   <td className="column-cliente">{pedido.cliente_nombre}</td>
                   <td className="column-fecha">
-                    {pedido.fecha_entrega
-                      ? new Date(pedido.fecha_entrega).toLocaleDateString()
-                      : "No especificada"}
+                    {pedido.fecha_entrega ? new Date(pedido.fecha_entrega).toLocaleDateString() : "No especificada"}
                   </td>
-                  <td className="column-total">
-                    ${Number(pedido.total).toLocaleString()}
-                  </td>
+                  <td className="column-total">${Number(pedido.total).toLocaleString()}</td>
                   <td className="column-estado">
-                    {getEstadoEntregaLabel(pedido.estado_entrega)}{" "}
-                    {getEstadoPagoLabel(pedido.estado_pago)}
+                    {getEstadoEntregaLabel(pedido.estado_entrega)} {getEstadoPagoLabel(pedido.estado_pago)}
                   </td>
                   <td className="column-acciones">
                     <div className="acciones-container">
@@ -376,37 +322,22 @@ const PedidosList = () => {
                             <MoreVertical size={18} />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="dropdown-menu-content"
-                        >
+                        <DropdownMenuContent align="end" className="dropdown-menu-content">
                           <DropdownMenuItem className="dropdown-menu-item">
-                            <Link
-                              href={`/pedidos/${pedido.id}`}
-                              className="dropdown-menu-link"
-                            >
+                            <Link href={`/pedidos/${pedido.id}`} className="dropdown-menu-link">
                               <Eye size={16} className="dropdown-menu-icon" />
                               <span>Ver Pedido</span>
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem className="dropdown-menu-item">
-                            <Link
-                              href={`/pedidos/${pedido.id}/editar`}
-                              className="dropdown-menu-link"
-                            >
+                            <Link href={`/pedidos/${pedido.id}/editar`} className="dropdown-menu-link">
                               <Edit size={16} className="dropdown-menu-icon" />
                               <span>Editar Pedido</span>
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem className="dropdown-menu-item">
-                            <Link
-                              href={`/pedidos/${pedido.id}`}
-                              className="dropdown-menu-link"
-                            >
-                              <FileEdit
-                                size={16}
-                                className="dropdown-menu-icon"
-                              />
+                            <Link href={`/pedidos/${pedido.id}`} className="dropdown-menu-link">
+                              <FileEdit size={16} className="dropdown-menu-icon" />
                               <span>Editar Estado</span>
                             </Link>
                           </DropdownMenuItem>
@@ -432,22 +363,18 @@ const PedidosList = () => {
           <div className="no-data-content">
             <FileText size={48} className="no-data-icon" />
             <p className="no-data-message">
-              {searchQuery ||
-              estadoEntregaFilter !== "todos" ||
-              estadoPagoFilter !== "todos"
+              {searchQuery || estadoEntregaFilter !== "todos" || estadoPagoFilter !== "todos"
                 ? "No se encontraron pedidos con los filtros aplicados"
                 : "No hay pedidos disponibles"}
             </p>
-            {(searchQuery ||
-              estadoEntregaFilter !== "todos" ||
-              estadoPagoFilter !== "todos") && (
+            {(searchQuery || estadoEntregaFilter !== "todos" || estadoPagoFilter !== "todos") && (
               <button
                 className="btn-secondary"
                 onClick={() => {
-                  setSearchQuery("");
-                  setEstadoEntregaFilter("todos");
-                  setEstadoPagoFilter("todos");
-                  fetchPedidos();
+                  setSearchQuery("")
+                  setEstadoEntregaFilter("todos")
+                  setEstadoPagoFilter("todos")
+                  fetchPedidos()
                 }}
               >
                 Ver todos los pedidos
@@ -457,7 +384,8 @@ const PedidosList = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default PedidosList;
+export default PedidosList
+

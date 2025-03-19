@@ -1,6 +1,5 @@
-"use server";
-import Header from "@/components/Header";
-import PedidosList from "@/components/PedidosList";
+import Header from "@/components/Header"
+import PedidosList from "@/components/PedidosList"
 
 export default async function PedidosPage() {
   return (
@@ -8,5 +7,6 @@ export default async function PedidosPage() {
       <Header />
       <PedidosList />
     </main>
-  );
+  )
 }
+
