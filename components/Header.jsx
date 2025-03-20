@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
-import styles from "@/styles/header.module.css";
+import styles from "@/styles/Header.module.css";
 
 const Header = () => {
   const pathname = usePathname();
