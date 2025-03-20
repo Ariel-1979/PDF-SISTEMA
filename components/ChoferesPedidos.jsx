@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -9,19 +8,13 @@ import {
   Calendar,
   User,
   MapPin,
-  Settings,
-  PlusCircle,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  getTodayDateString,
-  formatFullDate,
-  formatDateToString,
-} from "@/lib/date-utils";
+import { getTodayDateString, formatDateToString } from "@/lib/date-utils";
 import CustomDatePicker from "./CustomDatePicker";
 import "@/styles/choferes.css";
 
-const ChoferesRegistro = () => {
+const ChoferesPedidos = () => {
   const [choferes, setChoferes] = useState([]);
   const [pedidosPorChofer, setPedidosPorChofer] = useState({});
   const [loading, setLoading] = useState(true);
@@ -47,9 +40,10 @@ const ChoferesRegistro = () => {
       setLoading(true);
       const res = await fetch("/api/choferes");
       const data = await res.json();
-      setChoferes(Array.isArray(data) ? data : []);
+      const choferesData = Array.isArray(data) ? data : [];
+      setChoferes(choferesData);
 
-      if (Array.isArray(data) && data.length > 0) {
+      if (choferesData.length > 0) {
         fetchPedidosPorFecha();
       } else {
         setLoading(false);
@@ -108,6 +102,10 @@ const ChoferesRegistro = () => {
 
                   // Convertir la fecha de entrega a formato YYYY-MM-DD
                   const fechaPedido = formatDateToString(pedido.fecha_entrega);
+
+                  console.log(
+                    `Comparando fechas - Pedido: ${fechaPedido}, Seleccionada: ${fechaSeleccionada}`
+                  );
 
                   // Comparar las fechas como cadenas en formato YYYY-MM-DD
                   return fechaPedido === fechaSeleccionada;
@@ -171,26 +169,19 @@ const ChoferesRegistro = () => {
   return (
     <div className="choferes-container">
       <div className="choferes-header">
-        <h2>Registro de Pedidos por Chofer</h2>
+        <h2>Pedidos por Chofer</h2>
         <div className="header-actions">
           <Link href="/choferes/admin" className="btn btn-primary">
-            <Settings size={18} className="mr-2" />
             Administrar Choferes
           </Link>
         </div>
       </div>
 
-      {/* Selector de fecha */}
       <div className="fecha-selector-container">
         <div className="fecha-selector">
-          <Calendar size={18} className="fecha-icon" />
+          <Calendar size={20} className="fecha-icon" />
           <span className="fecha-label">Fecha:</span>
-          <CustomDatePicker
-            value={selectedDate}
-            onChange={handleDateChange}
-            className="fecha-input"
-          />
-          <span className="fecha-display">{formatFullDate(selectedDate)}</span>
+          <CustomDatePicker value={selectedDate} onChange={handleDateChange} />
         </div>
       </div>
 
@@ -291,7 +282,6 @@ const ChoferesRegistro = () => {
         <div className="no-data-container">
           <p className="no-data">No hay choferes registrados</p>
           <Link href="/choferes/admin" className="btn btn-primary">
-            <PlusCircle size={18} className="mr-2" />
             Agregar Choferes
           </Link>
         </div>
@@ -300,4 +290,4 @@ const ChoferesRegistro = () => {
   );
 };
 
-export default ChoferesRegistro;
+export default ChoferesPedidos;
