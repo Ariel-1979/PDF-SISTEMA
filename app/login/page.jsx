@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Eye, EyeOff, LogIn } from "lucide-react";
+import styles from "../login.module.css";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Mail } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { showToast } = useToast();
@@ -48,141 +51,106 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h1>Casa Luongo</h1>
-          <p>Ingrese sus credenciales para acceder</p>
+    <div className={styles.loginContainer}>
+      <div className={styles.loginCard}>
+        {/* Header con logo */}
+        <div className={styles.cardHeader}>
+          <Image
+            src="/Logo_Luongo.png"
+            alt="Casa Luongo Logo"
+            width={180}
+            height={90}
+            priority
+            className={styles.logo}
+          />
+          <h1 className={styles.title}>Sistema de Gestión</h1>
+          <p className={styles.subtitle}>Materiales para la Construcción</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="email">
-              <Mail size={18} />
-              <span>Email</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Ingrese su email"
-              required
-            />
-          </div>
+        {/* Formulario */}
+        <div className={styles.formContainer}>
+          <form onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label htmlFor="email" className={styles.label}>
+                Correo Electrónico
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={styles.input}
+                placeholder="ejemplo@correo.com"
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="password">
-              <Lock size={18} />
-              <span>Contraseña</span>
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Ingrese su contraseña"
-              required
-            />
-          </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="password" className={styles.label}>
+                Contraseña
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`${styles.input} ${styles.passwordInput}`}
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  className={styles.eyeButton}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
 
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <svg
+                    className={styles.spinner}
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      strokeOpacity="0.25"
+                    />
+                    <path
+                      d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  Iniciando sesión...
+                </>
+              ) : (
+                <>
+                  <LogIn size={18} />
+                  <span>Iniciar Sesión</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
       </div>
-
-      <style jsx>{`
-        .login-container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-          background-color: #f5f5f5;
-          padding: 20px;
-        }
-
-        .login-card {
-          background-color: white;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          width: 100%;
-          max-width: 400px;
-          padding: 30px;
-        }
-
-        .login-header {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-          margin: 0;
-          color: #333;
-          font-size: 28px;
-          margin-bottom: 10px;
-        }
-
-        .login-header p {
-          color: #666;
-          margin: 0;
-        }
-
-        .login-form {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .form-group label {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #555;
-          font-weight: 500;
-        }
-
-        .form-group input {
-          padding: 12px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 16px;
-          transition: border-color 0.2s;
-        }
-
-        .form-group input:focus {
-          outline: none;
-          border-color: #2563eb;
-        }
-
-        .login-button {
-          background-color: #2563eb;
-          color: white;
-          border: none;
-          padding: 12px;
-          border-radius: 4px;
-          font-size: 16px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: background-color 0.2s;
-          margin-top: 10px;
-        }
-
-        .login-button:hover {
-          background-color: #1d4ed8;
-        }
-
-        .login-button:disabled {
-          background-color: #93c5fd;
-          cursor: not-allowed;
-        }
-      `}</style>
     </div>
   );
 }

@@ -4,7 +4,7 @@ export function middleware(request) {
   // Obtener la cookie de autenticación
   const authToken = request.cookies.get("auth_token")?.value;
 
-  // Verificar si la ruta actual es la página de login
+  // Verificar si la ruta actual es la página de login o la raíz (que ahora será login)
   const isLoginPage = request.nextUrl.pathname === "/login";
 
   // Si el usuario no está autenticado y no está en la página de login, redirigir a login
@@ -13,10 +13,10 @@ export function middleware(request) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Si el usuario está autenticado y está en la página de login, redirigir al panel principal
+  // Si el usuario está autenticado y está en la página de login, redirigir al dashboard
   if (authToken && isLoginPage) {
-    const homeUrl = new URL("/", request.url);
-    return NextResponse.redirect(homeUrl);
+    const dashboardUrl = new URL("/dashboard", request.url);
+    return NextResponse.redirect(dashboardUrl);
   }
 
   // Permitir la solicitud para todas las demás rutas
