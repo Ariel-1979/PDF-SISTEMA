@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
-export async function GET(request, context) {
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const nombre = searchParams.get("nombre");
+
   try {
-    // Esperar los parámetros antes de desestructurarlos
-    const params = await context.params;
-    const { nombre } = params;
+    if (!nombre) {
+      return NextResponse.json(
+        { error: "Se requiere el parámetro nombre" },
+        { status: 400 }
+      );
+    }
 
     console.log("API: Buscando pedidos para el chofer:", nombre);
 
@@ -43,7 +49,7 @@ export async function GET(request, context) {
       return NextResponse.json({ error: dbError.message }, { status: 500 });
     }
   } catch (error) {
-    console.error(`API Error en GET /choferes/[nombre]/pedidos:`, error);
+    console.error(`API Error en GET /choferes/pedidos:`, error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

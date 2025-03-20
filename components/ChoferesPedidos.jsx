@@ -71,9 +71,9 @@ const ChoferesPedidos = () => {
       await Promise.all(
         choferes.map(async (chofer) => {
           try {
-            // Usar la ruta API alternativa que sabemos que funciona
+            // Usar la nueva ruta API
             const res = await fetch(
-              `/api/choferes-nuevo/pedidos?nombre=${encodeURIComponent(
+              `/api/choferes/pedidos?nombre=${encodeURIComponent(
                 chofer.nombre
               )}`
             );

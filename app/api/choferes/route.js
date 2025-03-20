@@ -3,7 +3,6 @@ import mysql from "mysql2/promise";
 
 export async function GET() {
   try {
-    // Crear conexión a la base de datos
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
@@ -12,7 +11,6 @@ export async function GET() {
     });
 
     try {
-      // Consulta SQL para obtener todos los choferes
       const [rows] = await connection.execute(`
         SELECT id, nombre
         FROM choferes
@@ -24,11 +22,9 @@ export async function GET() {
       return NextResponse.json(rows);
     } catch (dbError) {
       await connection.end();
-      console.error("Error en la consulta de la base de datos:", dbError);
       return NextResponse.json({ error: dbError.message }, { status: 500 });
     }
   } catch (error) {
-    console.error("Error en API GET /choferes:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -54,10 +50,10 @@ export async function POST(request) {
     });
 
     try {
-      // Insertar el chofer directamente con SQL
+      // Insertar el chofer directamente con SQL - solo el campo nombre
       const [result] = await connection.execute(
-        "INSERT INTO choferes (nombre, domicilio) VALUES (?, ?)",
-        [nombre, domicilio || null]
+        "INSERT INTO choferes (nombre) VALUES (?)",
+        [nombre]
       );
 
       await connection.end();
@@ -66,7 +62,6 @@ export async function POST(request) {
         {
           id: result.insertId,
           nombre,
-          domicilio,
           message: "Chofer creado correctamente",
         },
         { status: 201 }

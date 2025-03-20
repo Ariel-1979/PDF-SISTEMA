@@ -13,13 +13,6 @@ export async function PUT(request) {
       );
     }
 
-    console.log(
-      "API: Actualizando chofer con ID:",
-      id,
-      "Nuevo nombre:",
-      nombre
-    );
-
     // Crear conexión a la base de datos
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST,
@@ -29,7 +22,7 @@ export async function PUT(request) {
     });
 
     try {
-      // Actualizar el chofer directamente con SQL
+      // Actualizar el chofer directamente con SQL - solo el campo nombre
       const [result] = await connection.execute(
         "UPDATE choferes SET nombre = ? WHERE id = ?",
         [nombre, id]

@@ -32,11 +32,19 @@ const ChoferesAdministracion = () => {
     try {
       setLoading(true);
       const res = await fetch("/api/choferes");
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `Error al cargar choferes: ${res.status}`
+        );
+      }
+
       const data = await res.json();
       setChoferes(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error al cargar choferes:", error);
-      showToast("Error al cargar choferes", "error");
+      showToast(`Error al cargar choferes: ${error.message}`, "error");
     } finally {
       setLoading(false);
     }
@@ -53,6 +61,7 @@ const ChoferesAdministracion = () => {
     try {
       setSaving(true);
 
+      // Usar la ruta API principal /api/choferes que sabemos que funciona
       const response = await fetch("/api/choferes", {
         method: "POST",
         headers: {
@@ -62,7 +71,8 @@ const ChoferesAdministracion = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Error al guardar el chofer");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Error al guardar el chofer");
       }
 
       showToast(`Chofer ${nombre} agregado correctamente`, "success");
@@ -93,7 +103,7 @@ const ChoferesAdministracion = () => {
     }
 
     try {
-      // Usar la nueva ruta API para editar choferes
+      // Usar la ruta API correcta para editar choferes
       const response = await fetch("/api/choferes/editar", {
         method: "PUT",
         headers: {
@@ -120,7 +130,7 @@ const ChoferesAdministracion = () => {
     try {
       setDeleting(true);
 
-      // Usar la nueva ruta API para eliminar choferes
+      // Usar la ruta API correcta para eliminar choferes
       const response = await fetch("/api/choferes/eliminar", {
         method: "DELETE",
         headers: {
@@ -188,15 +198,17 @@ const ChoferesAdministracion = () => {
                     onChange={(e) => setNombre(e.target.value)}
                     placeholder="Ingrese el nombre del chofer"
                   />
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-icon"
-                    disabled={saving}
-                  >
-                    <PlusCircle size={18} />
-                    <span>{saving ? "Guardando..." : "Agregar"}</span>
-                  </button>
                 </div>
+              </div>
+              <div className="form-actions">
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-icon"
+                  disabled={saving}
+                >
+                  <PlusCircle size={18} />
+                  <span>{saving ? "Guardando..." : "Agregar"}</span>
+                </button>
               </div>
             </form>
           </div>
@@ -218,13 +230,16 @@ const ChoferesAdministracion = () => {
                   <div key={chofer.id} className="chofer-list-item">
                     {editingId === chofer.id ? (
                       <div className="chofer-edit-form">
-                        <input
-                          type="text"
-                          className="edit-input"
-                          value={editingNombre}
-                          onChange={(e) => setEditingNombre(e.target.value)}
-                          autoFocus
-                        />
+                        <div className="edit-field">
+                          <label>Nombre:</label>
+                          <input
+                            type="text"
+                            className="edit-input"
+                            value={editingNombre}
+                            onChange={(e) => setEditingNombre(e.target.value)}
+                            autoFocus
+                          />
+                        </div>
                         <div className="edit-actions">
                           <button
                             className="btn-action btn-save"
@@ -244,9 +259,11 @@ const ChoferesAdministracion = () => {
                       </div>
                     ) : (
                       <div className="chofer-item-content">
-                        <div className="chofer-nombre">
-                          <Truck size={18} className="chofer-icon" />
-                          <span>{chofer.nombre}</span>
+                        <div className="chofer-info">
+                          <div className="chofer-nombre">
+                            <Truck size={18} className="chofer-icon" />
+                            <span>{chofer.nombre}</span>
+                          </div>
                         </div>
                         <div className="chofer-actions">
                           <button

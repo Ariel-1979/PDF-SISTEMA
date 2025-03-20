@@ -26,6 +26,7 @@ const ChoferesRegistro = () => {
   const [pedidosPorChofer, setPedidosPorChofer] = useState({});
   const [loading, setLoading] = useState(true);
   const [loadingPedidos, setLoadingPedidos] = useState(false);
+  const [error, setError] = useState(null);
 
   // Usar la utilidad para obtener la fecha actual en formato YYYY-MM-DD
   const [selectedDate, setSelectedDate] = useState(getTodayDateString());
@@ -45,7 +46,17 @@ const ChoferesRegistro = () => {
   const fetchChoferes = async () => {
     try {
       setLoading(true);
+      setError(null);
+
       const res = await fetch("/api/choferes");
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `Error al cargar choferes: ${res.status}`
+        );
+      }
+
       const data = await res.json();
       setChoferes(Array.isArray(data) ? data : []);
 
@@ -56,7 +67,8 @@ const ChoferesRegistro = () => {
       }
     } catch (error) {
       console.error("Error al cargar choferes:", error);
-      showToast("Error al cargar choferes", "error");
+      setError(error.message);
+      showToast(`Error al cargar choferes: ${error.message}`, "error");
       setLoading(false);
     }
   };
@@ -77,9 +89,9 @@ const ChoferesRegistro = () => {
       await Promise.all(
         choferes.map(async (chofer) => {
           try {
-            // Usar la ruta API alternativa que sabemos que funciona
+            // Usar la nueva ruta API
             const res = await fetch(
-              `/api/choferes-nuevo/pedidos?nombre=${encodeURIComponent(
+              `/api/choferes/pedidos?nombre=${encodeURIComponent(
                 chofer.nombre
               )}`
             );
@@ -132,7 +144,7 @@ const ChoferesRegistro = () => {
       setPedidosPorChofer(pedidosTemp);
     } catch (error) {
       console.error(`Error al cargar pedidos:`, error);
-      showToast(`Error al cargar pedidos`, "error");
+      showToast(`Error al cargar pedidos: ${error.message}`, "error");
     } finally {
       setLoadingPedidos(false);
       setLoading(false);
@@ -164,6 +176,20 @@ const ChoferesRegistro = () => {
     return (
       <div className="choferes-container">
         <div className="loading">Cargando...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="choferes-container">
+        <div className="error-container">
+          <h3>Error al cargar datos</h3>
+          <p>{error}</p>
+          <button className="btn btn-primary" onClick={fetchChoferes}>
+            Reintentar
+          </button>
+        </div>
       </div>
     );
   }

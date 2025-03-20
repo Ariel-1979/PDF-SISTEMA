@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { updateChofer, deleteChofer } from "@/lib/db";
+import mysql from "mysql2/promise";
 
 export async function PUT(request, context) {
   try {
@@ -17,16 +17,40 @@ export async function PUT(request, context) {
       );
     }
 
-    const result = await updateChofer(id, nombre);
+    // Crear conexión a la base de datos
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+    });
 
-    if (!result) {
-      return NextResponse.json(
-        { error: "Chofer no encontrado" },
-        { status: 404 }
+    try {
+      // Actualizar el chofer directamente con SQL
+      const [result] = await connection.execute(
+        "UPDATE choferes SET nombre = ? WHERE id = ?",
+        [nombre, id]
       );
-    }
 
-    return NextResponse.json(result);
+      await connection.end();
+
+      if (result.affectedRows === 0) {
+        return NextResponse.json(
+          { error: "Chofer no encontrado" },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        id,
+        nombre,
+        message: "Chofer actualizado correctamente",
+      });
+    } catch (dbError) {
+      await connection.end();
+      console.error("Error en la base de datos:", dbError);
+      return NextResponse.json({ error: dbError.message }, { status: 500 });
+    }
   } catch (error) {
     console.error("Error en API PUT /choferes/[id]:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -41,28 +65,36 @@ export async function DELETE(request, context) {
 
     console.log("API: Eliminando chofer con ID:", id);
 
-    // Verificar que la función deleteChofer existe
-    if (typeof deleteChofer !== "function") {
-      console.error("La función deleteChofer no está definida");
-      return NextResponse.json(
-        {
-          error:
-            "Error interno del servidor: función de eliminación no disponible",
-        },
-        { status: 500 }
+    // Crear conexión a la base de datos
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+    });
+
+    try {
+      // Eliminar el chofer directamente con SQL
+      const [result] = await connection.execute(
+        "DELETE FROM choferes WHERE id = ?",
+        [id]
       );
+
+      await connection.end();
+
+      if (result.affectedRows === 0) {
+        return NextResponse.json(
+          { error: "Chofer no encontrado" },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({ message: "Chofer eliminado correctamente" });
+    } catch (dbError) {
+      await connection.end();
+      console.error("Error al eliminar chofer en la base de datos:", dbError);
+      return NextResponse.json({ error: dbError.message }, { status: 500 });
     }
-
-    const result = await deleteChofer(id);
-
-    if (!result) {
-      return NextResponse.json(
-        { error: "Chofer no encontrado" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({ message: "Chofer eliminado correctamente" });
   } catch (error) {
     console.error("Error en API DELETE /choferes/[id]:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

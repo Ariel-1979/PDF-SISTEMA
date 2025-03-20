@@ -148,13 +148,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          <div className={styles.helpText}>
-            <p>Para acceder en modo de prueba:</p>
-            <p className={styles.credentials}>
-              Email: test@example.com | Contraseña: password
-            </p>
-          </div>
         </div>
       </div>
     </div>
