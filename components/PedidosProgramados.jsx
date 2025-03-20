@@ -20,7 +20,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import DatePickerWithHighlight from "./DatePickerShadcn";
 
 // Importar el CSS Module
 import styles from "@/styles/pedidos.module.css";
@@ -347,11 +346,11 @@ const PedidosList = () => {
           </select>
 
           {/* Nuevo filtro de fecha con calendario personalizado */}
-          <DatePickerWithHighlight
+          {/*  <CustomDatePicker
             value={fechaFilter}
             onChange={setFechaFilter}
             datesWithPedidos={fechasConPedidos}
-          />
+          /> */}
 
           {/* Botón para limpiar filtros */}
           {filtersActive && (
