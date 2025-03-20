@@ -1,58 +1,37 @@
-import { NextResponse } from "next/server"
-import { verify } from "jsonwebtoken"
-
-// Rutas que no requieren autenticación
-const publicRoutes = ["/", "/_next", "/favicon.ico", "/Logo_Luongo.png"]
-
-// Rutas que requieren rol de administrador
-const adminRoutes = ["/admin"]
+import { NextResponse } from "next/server";
 
 export function middleware(request) {
-  const { pathname } = request.nextUrl
+  // Obtener la cookie de autenticación
+  const authToken = request.cookies.get("auth_token")?.value;
 
-  // Verificar si estamos en modo de desarrollo o preview
-  const isDevOrPreview = process.env.NODE_ENV !== "production" || process.env.VERCEL_ENV === "preview"
+  // Verificar si la ruta actual es la página de login
+  const isLoginPage = request.nextUrl.pathname === "/login";
 
-  // En desarrollo o preview, permitir todas las rutas
-  if (isDevOrPreview) {
-    return NextResponse.next()
+  // Si el usuario no está autenticado y no está en la página de login, redirigir a login
+  if (!authToken && !isLoginPage) {
+    const loginUrl = new URL("/login", request.url);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Permitir acceso a rutas públicas
-  if (publicRoutes.some((route) => pathname.startsWith(route))) {
-    return NextResponse.next()
+  // Si el usuario está autenticado y está en la página de login, redirigir al panel principal
+  if (authToken && isLoginPage) {
+    const homeUrl = new URL("/", request.url);
+    return NextResponse.redirect(homeUrl);
   }
 
-  // Verificar token de autenticación
-  const token = request.cookies.get("auth_token")?.value
-
-  if (!token) {
-    return NextResponse.redirect(new URL("/", request.url))
-  }
-
-  try {
-    // Verificar y decodificar el token
-    const decoded = verify(token, process.env.JWT_SECRET || "your-secret-key")
-
-    // Verificar permisos para rutas de administrador
-    if (adminRoutes.some((route) => pathname.startsWith(route)) && decoded.role !== "admin") {
-      return NextResponse.redirect(new URL("/", request.url))
-    }
-
-    return NextResponse.next()
-  } catch (error) {
-    // Token inválido o expirado
-    return NextResponse.redirect(new URL("/", request.url))
-  }
+  // Permitir la solicitud para todas las demás rutas
+  return NextResponse.next();
 }
 
+// Configurar las rutas que deben ser protegidas por el middleware
 export const config = {
   matcher: [
     /*
-     * Excluir archivos estáticos y API routes
-     * /_next/static, /_next/image, /favicon.ico, /api/auth/login, /api/auth/logout
+     * Coincide con todas las rutas excepto:
+     * 1. /api/auth/* (rutas de autenticación)
+     * 2. /_next/* (archivos estáticos de Next.js)
+     * 3. /favicon.ico, /sitemap.xml, /robots.txt (archivos comunes)
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/auth/login|api/auth/logout).*)",
+    "/((?!api/auth|_next|favicon.ico|sitemap.xml|robots.txt).*)",
   ],
-}
-
+};

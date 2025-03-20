@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { LogOut, User, LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
+import styles from "@/styles/header.module.css";
 
 const Header = () => {
   const pathname = usePathname();
@@ -44,9 +45,9 @@ const Header = () => {
   };
 
   return (
-    <header className="header">
-      <div className="container header-container">
-        <h1 className="logo">
+    <header className={styles.header}>
+      <div className={`container ${styles.headerContainer}`}>
+        <h1 className={styles.logo}>
           <Link href="/dashboard">
             <img src="/Logo_Luongo.png" alt="Casa Luongo Logo" />
           </Link>
@@ -54,35 +55,35 @@ const Header = () => {
 
         {isClient && (
           <>
-            <nav className="main-nav">
+            <nav className={styles.mainNav}>
               <Link
                 href="/dashboard"
-                className={`nav-link ${
-                  pathname === "/dashboard" ? "active-link" : ""
+                className={`${styles.navLink} ${
+                  pathname === "/dashboard" ? styles.activeLink : ""
                 }`}
               >
                 Inicio
               </Link>
               <Link
                 href="/presupuestos"
-                className={`nav-link ${
-                  pathname.startsWith("/presupuestos") ? "active-link" : ""
+                className={`${styles.navLink} ${
+                  pathname.startsWith("/presupuestos") ? styles.activeLink : ""
                 }`}
               >
                 Presupuestos
               </Link>
               <Link
                 href="/pedidos"
-                className={`nav-link ${
-                  pathname.startsWith("/pedidos") ? "active-link" : ""
+                className={`${styles.navLink} ${
+                  pathname.startsWith("/pedidos") ? styles.activeLink : ""
                 }`}
               >
                 Pedidos
               </Link>
               <Link
                 href="/choferes"
-                className={`nav-link ${
-                  pathname.startsWith("/choferes") ? "active-link" : ""
+                className={`${styles.navLink} ${
+                  pathname.startsWith("/choferes") ? styles.activeLink : ""
                 }`}
               >
                 Choferes
@@ -90,8 +91,8 @@ const Header = () => {
               {user?.role === "admin" && (
                 <Link
                   href="/admin"
-                  className={`nav-link ${
-                    pathname.startsWith("/admin") ? "active-link" : ""
+                  className={`${styles.navLink} ${
+                    pathname.startsWith("/admin") ? styles.activeLink : ""
                   }`}
                 >
                   Admin
@@ -99,44 +100,55 @@ const Header = () => {
               )}
             </nav>
 
-            {user ? (
-              <div className="relative">
+            <div className={styles.headerActions}>
+              {/* Icono de cerrar sesión independiente */}
+              {user && (
                 <button
-                  className="user-menu-button flex items-center gap-2 px-3 py-2 rounded-full bg-primary-light text-primary hover:bg-primary hover:text-white transition-colors"
-                  onClick={() => setShowDropdown(!showDropdown)}
+                  onClick={handleLogout}
+                  className={styles.logoutButton}
+                  title="Cerrar sesión"
+                  aria-label="Cerrar sesión"
                 >
-                  <User size={18} />
-                  <span className="hidden md:inline">{user.name}</span>
+                  <LogOut size={20} />
                 </button>
+              )}
 
-                {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                      <div className="font-medium">{user.name}</div>
-                      <div className="text-gray-500">{user.email}</div>
-                      <div className="text-xs mt-1 bg-gray-100 rounded px-2 py-1 inline-block">
-                        {user.role === "admin" ? "Administrador" : "Usuario"}
+              {user ? (
+                <div className="relative">
+                  <button
+                    className={styles.userMenuButton}
+                    onClick={() => setShowDropdown(!showDropdown)}
+                  >
+                    <User size={18} />
+                    <span className="hidden md:inline">{user.name}</span>
+                  </button>
+
+                  {showDropdown && (
+                    <div className={styles.userDropdown}>
+                      <div className={styles.userInfo}>
+                        <div className={styles.userName}>{user.name}</div>
+                        <div className={styles.userEmail}>{user.email}</div>
+                        <div className={styles.userRole}>
+                          {user.role === "admin" ? "Administrador" : "Usuario"}
+                        </div>
                       </div>
+                      <button
+                        onClick={handleLogout}
+                        className={styles.dropdownItem}
+                      >
+                        <LogOut size={16} />
+                        <span>Cerrar sesión</span>
+                      </button>
                     </div>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                    >
-                      <LogOut size={16} />
-                      <span>Cerrar sesión</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                className="flex items-center gap-2 px-3 py-2 rounded-full bg-primary text-white hover:bg-primary-hover transition-colors"
-              >
-                <LogIn size={18} />
-                <span className="hidden md:inline">Iniciar sesión</span>
-              </Link>
-            )}
+                  )}
+                </div>
+              ) : (
+                <Link href="/login" className={styles.userMenuButton}>
+                  <LogIn size={18} />
+                  <span className="hidden md:inline">Iniciar sesión</span>
+                </Link>
+              )}
+            </div>
           </>
         )}
       </div>
