@@ -2,23 +2,27 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Lock, Mail } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+
+    if (!email || !password) {
+      showToast("Por favor ingrese email y contraseña", "error");
+      return;
+    }
 
     try {
+      setLoading(true);
+
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -33,106 +37,152 @@ export default function LoginPage() {
         throw new Error(data.error || "Error al iniciar sesión");
       }
 
-      // Redireccionar al dashboard después de iniciar sesión
+      showToast("Inicio de sesión exitoso", "success");
       router.push("/");
     } catch (error) {
-      setError(error.message);
+      console.error("Error al iniciar sesión:", error);
+      showToast(error.message || "Error al iniciar sesión", "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <Image
-              src="/Logo_Luongo.png"
-              alt="Casa Luongo Logo"
-              width={150}
-              height={80}
-              priority
-            />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            Sistema de Gestión
-          </h1>
-          <p className="text-gray-600">Ingrese sus credenciales para acceder</p>
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-header">
+          <h1>Casa Luongo</h1>
+          <p>Ingrese sus credenciales para acceder</p>
         </div>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Correo Electrónico
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label htmlFor="email">
+              <Mail size={18} />
+              <span>Email</span>
             </label>
             <input
-              id="email"
               type="email"
+              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="form-control w-full"
-              placeholder="ejemplo@correo.com"
+              placeholder="Ingrese su email"
               required
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Contraseña
+          <div className="form-group">
+            <label htmlFor="password">
+              <Lock size={18} />
+              <span>Contraseña</span>
             </label>
-            <div className="relative">
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-control w-full pr-10"
-                placeholder="••••••••"
-                required
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <Eye className="h-5 w-5 text-gray-400" />
-                )}
-              </button>
-            </div>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Ingrese su contraseña"
+              required
+            />
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary w-full flex items-center justify-center gap-2"
-            disabled={loading}
-          >
-            {loading ? (
-              "Iniciando sesión..."
-            ) : (
-              <>
-                <LogIn size={18} />
-                <span>Iniciar Sesión</span>
-              </>
-            )}
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
           </button>
         </form>
       </div>
+
+      <style jsx>{`
+        .login-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          background-color: #f5f5f5;
+          padding: 20px;
+        }
+
+        .login-card {
+          background-color: white;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          width: 100%;
+          max-width: 400px;
+          padding: 30px;
+        }
+
+        .login-header {
+          text-align: center;
+          margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+          margin: 0;
+          color: #333;
+          font-size: 28px;
+          margin-bottom: 10px;
+        }
+
+        .login-header p {
+          color: #666;
+          margin: 0;
+        }
+
+        .login-form {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .form-group label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #555;
+          font-weight: 500;
+        }
+
+        .form-group input {
+          padding: 12px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 16px;
+          transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+          outline: none;
+          border-color: #2563eb;
+        }
+
+        .login-button {
+          background-color: #2563eb;
+          color: white;
+          border: none;
+          padding: 12px;
+          border-radius: 4px;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          margin-top: 10px;
+        }
+
+        .login-button:hover {
+          background-color: #1d4ed8;
+        }
+
+        .login-button:disabled {
+          background-color: #93c5fd;
+          cursor: not-allowed;
+        }
+      `}</style>
     </div>
   );
 }

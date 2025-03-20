@@ -1,12 +1,11 @@
-import Header from "@/components/Header"
-import ChoferesRegistro from "@/components/ChoferesRegistro"
+import ClientHeader from "@/components/ClientHeader";
+import ChoferesRegistro from "@/components/ChoferesRegistro";
 
 export default function ChoferesPage() {
   return (
     <main>
-      <Header />
+      <ClientHeader />
       <ChoferesRegistro />
     </main>
-  )
+  );
 }
-
