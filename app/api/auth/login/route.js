@@ -8,7 +8,6 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
-    // Validar que se proporcionaron email y password
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email y contraseña son requeridos" },
@@ -61,7 +60,7 @@ export async function POST(request) {
           role: user.role,
         },
         process.env.JWT_SECRET || "your-secret-key",
-        { expiresIn: "8h" }
+        { expiresIn: process.env.JWT_EXPIRES_IN || "8h" }
       );
 
       // Crear objeto de respuesta
