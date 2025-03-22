@@ -3,10 +3,6 @@ import { cookies } from "next/headers";
 import mysql from "mysql2/promise";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.production" });
-
-console.log(process.env.DB_USER, "USUARIO BD");
 
 export async function POST(request) {
   try {
