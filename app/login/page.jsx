@@ -55,12 +55,11 @@ export default function LoginPage() {
       <div className={styles.loginCard}>
         {/* Header con logo */}
         <div className={styles.cardHeader}>
-          <Image
+          <img
             src="/Logo_Luongo.png"
             alt="Casa Luongo Logo"
             width={180}
             height={90}
-            priority
             className={styles.logo}
           />
           <h1 className={styles.title}>Sistema de Gestión</h1>
