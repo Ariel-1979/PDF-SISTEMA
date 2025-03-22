@@ -41,7 +41,7 @@ export default function LoginPage() {
       }
 
       showToast("Inicio de sesión exitoso", "success");
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
       showToast(error.message || "Error al iniciar sesión", "error");

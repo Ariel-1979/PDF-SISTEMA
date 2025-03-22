@@ -74,9 +74,8 @@ export async function POST(request) {
         },
       });
 
-      // Establecer cookie con el token - CORREGIDO PARA USAR AWAIT
-      const cookieStore = cookies();
-      await cookieStore.set("auth_token", token, {
+      const cookieStore = await cookies();
+      cookieStore.set("auth_token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 8, // 8 horas

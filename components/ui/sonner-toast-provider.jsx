@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { Toaster } from "sonner"
+import { Toaster } from "sonner";
 
 export function SonnerToastProvider() {
   return (
@@ -13,9 +13,10 @@ export function SonnerToastProvider() {
           background: "var(--bg-light)",
           color: "var(--text-color)",
           border: "1px solid var(--border-color)",
+          padding: "1.5rem",
+          borderRadius: "1rem",
         },
       }}
     />
-  )
+  );
 }
-

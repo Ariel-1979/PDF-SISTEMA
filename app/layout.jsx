@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
+import "./globals.css";
 import { SonnerToastProvider } from "@/components/ui/sonner-toast-provider";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,7 +21,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-
-import "./globals.css";
-
-import "./globals.css";
