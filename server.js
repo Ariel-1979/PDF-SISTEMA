@@ -33,6 +33,26 @@ app.prepare().then(() => {
     });
   });
 
+  // Ruta para webhook de GitHub
+  server.post("/webhook", express.json(), (req, res) => {
+    const { headers } = req;
+
+    // Verificás si viene desde GitHub (opcionalmente podés validar una secret)
+    if (headers["user-agent"].includes("GitHub-Hookshot")) {
+      const exec = require("child_process").exec;
+      exec("bash ./deploy.sh", (err, stdout, stderr) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error al ejecutar deploy");
+        }
+        console.log(stdout);
+        res.status(200).send("Deploy ejecutado");
+      });
+    } else {
+      res.status(403).send("Forbidden");
+    }
+  });
+
   // Delegar manejo de rutas a Next.js
   server.all("*", (req, res) => {
     return handle(req, res);
