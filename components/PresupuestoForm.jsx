@@ -135,14 +135,17 @@ const PresupuestoForm = () => {
         imgHeight
       );
 
-      // Encabezado - Orden cambiado según lo solicitado
       doc.setFontSize(14);
       doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
       doc.text("Materiales para la Construcción", 105, 40, { align: "center" });
 
       doc.setFontSize(22);
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text("PRESUPUESTO", 105, 50, { align: "center" });
+      doc.text("PRESUPUESTO", 105, 50, {
+        align: "center",
+        textStyle: "bold",
+        textUnderline: true,
+      });
 
       // Número de presupuesto y fecha en el mismo renglón
       const fecha = new Date().toLocaleDateString("es-AR", {
@@ -412,7 +415,6 @@ const PresupuestoForm = () => {
       doc.save(`Presupuesto_${numeroPresupuesto}_${Date.now()}.pdf`);
       showToast("PDF generado correctamente", "success");
     } catch (error) {
-      console.error("Error al generar PDF:", error);
       showToast("Error al generar el PDF: " + error.message, "error");
     }
   };
@@ -461,15 +463,10 @@ const PresupuestoForm = () => {
       showToast("Presupuesto guardado correctamente", "success");
       router.push(`/presupuestos/${responseData.id}`);
     } catch (error) {
-      console.error("Error al guardar presupuesto:", error);
       showToast(`Error al guardar el presupuesto: ${error.message}`, "error");
     } finally {
       setSaving(false);
     }
-  };
-
-  const mostrarPreview = () => {
-    setShowPreview(true);
   };
 
   return (

@@ -19,8 +19,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import PedidosDeleteAll from "./PedidosDeleteAll";
 
-// Importar el CSS Module
 import styles from "@/styles/pedidos.module.css";
 
 const PedidosList = () => {
@@ -33,7 +33,7 @@ const PedidosList = () => {
   const [estadoPagoFilter, setEstadoPagoFilter] = useState("todos");
   const [fechaFilter, setFechaFilter] = useState(
     new Date().toISOString().split("T")[0]
-  ); // Fecha actual como valor inicial
+  );
   const [filtersActive, setFiltersActive] = useState(true);
   const { showToast } = useToast();
 
@@ -42,10 +42,8 @@ const PedidosList = () => {
   }, []);
 
   useEffect(() => {
-    // Aplicar filtros cuando cambian los pedidos o los filtros
     applyFilters();
 
-    // Verificar si hay filtros activos
     setFiltersActive(
       estadoEntregaFilter !== "todos" ||
         estadoPagoFilter !== "todos" ||
@@ -75,7 +73,6 @@ const PedidosList = () => {
       setPedidos(pedidosData);
       setFilteredPedidos(pedidosData);
     } catch (error) {
-      console.error("Error al cargar pedidos:", error);
       showToast("Error al cargar pedidos: " + error.message, "error");
     } finally {
       setLoading(false);
@@ -85,14 +82,12 @@ const PedidosList = () => {
   const applyFilters = () => {
     let result = [...pedidos];
 
-    // Filtrar por estado de entrega
     if (estadoEntregaFilter !== "todos") {
       result = result.filter(
         (pedido) => pedido.estado_entrega === estadoEntregaFilter
       );
     }
 
-    // Filtrar por estado de pago
     if (estadoPagoFilter !== "todos") {
       result = result.filter(
         (pedido) => pedido.estado_pago === estadoPagoFilter
@@ -126,7 +121,6 @@ const PedidosList = () => {
     setEstadoEntregaFilter("todos");
     setEstadoPagoFilter("todos");
     setFechaFilter("");
-    // No reseteamos la búsqueda, solo los filtros
   };
 
   const handleSearch = async (e) => {
@@ -293,7 +287,7 @@ const PedidosList = () => {
             <div className="search-input-wrapper">
               <input
                 type="text"
-                placeholder="Buscar..."
+                placeholder="Buscar"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input"
@@ -357,6 +351,7 @@ const PedidosList = () => {
             </button>
           )}
         </div>
+        <PedidosDeleteAll />
       </div>
 
       {filteredPedidos.length > 0 ? (

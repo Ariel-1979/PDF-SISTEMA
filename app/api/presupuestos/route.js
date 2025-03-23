@@ -14,7 +14,6 @@ export async function GET(request) {
 
   try {
     if (query) {
-      console.log("Buscando presupuestos con query:", query);
       const presupuestos = await searchPresupuestos(query);
       return NextResponse.json(presupuestos);
     } else {

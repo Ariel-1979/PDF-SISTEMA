@@ -1,20 +1,23 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import ClienteForm from "./ClienteForm"
-import OpcionesForm from "./OpcionesForm"
-import ProductForm from "./ProductForm"
-import ProductList from "./ProductList"
-import { useToast } from "@/hooks/use-toast"
-import { Save, ArrowLeft, User, Percent } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import ClienteForm from "./ClienteForm";
+import OpcionesForm from "./OpcionesForm";
+import ProductForm from "./ProductForm";
+import ProductList from "./ProductList";
+import { useToast } from "@/hooks/use-toast";
+import { Save, ArrowLeft, User, Percent } from "lucide-react";
 
 const PresupuestoEditForm = ({ presupuesto }) => {
-  console.log("PresupuestoEditForm - ID del presupuesto recibido:", presupuesto?.id)
-  const [productos, setProductos] = useState([])
-  const [saving, setSaving] = useState(false)
-  const [showClienteForm, setShowClienteForm] = useState(false)
-  const [showOpcionesForm, setShowOpcionesForm] = useState(false)
+  console.log(
+    "PresupuestoEditForm - ID del presupuesto recibido:",
+    presupuesto?.id
+  );
+  const [productos, setProductos] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [showClienteForm, setShowClienteForm] = useState(false);
+  const [showOpcionesForm, setShowOpcionesForm] = useState(false);
   const [cliente, setCliente] = useState({
     nombre: "",
     domicilio: "",
@@ -22,13 +25,13 @@ const PresupuestoEditForm = ({ presupuesto }) => {
     telefono: "",
     localidad: "",
     iva: "0%",
-  })
+  });
   const [opciones, setOpciones] = useState({
     iva: "0%",
     descuento: "0%",
-  })
-  const router = useRouter()
-  const { showToast } = useToast()
+  });
+  const router = useRouter();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (presupuesto) {
@@ -40,13 +43,13 @@ const PresupuestoEditForm = ({ presupuesto }) => {
         telefono: presupuesto.telefono || "",
         localidad: presupuesto.localidad || "",
         iva: presupuesto.iva_porcentaje || "0%",
-      })
+      });
 
       // Configurar opciones
       setOpciones({
         iva: presupuesto.iva_porcentaje || "0%",
         descuento: presupuesto.descuento_porcentaje || "0%",
-      })
+      });
 
       // Cargar productos
       if (Array.isArray(presupuesto.productos)) {
@@ -57,19 +60,25 @@ const PresupuestoEditForm = ({ presupuesto }) => {
             cantidad: p.cantidad,
             precioUnitario: Number(p.precio_unitario),
             subtotal: Number(p.subtotal),
-          })),
-        )
+          }))
+        );
       }
     }
-  }, [presupuesto])
+  }, [presupuesto]);
 
   const agregarProducto = (producto) => {
-    const productoExistente = productos.find((p) => p.nombre === producto.nombre)
+    const productoExistente = productos.find(
+      (p) => p.nombre === producto.nombre
+    );
 
     if (productoExistente) {
       setProductos(
-        productos.map((p) => (p.nombre === producto.nombre ? { ...p, cantidad: p.cantidad + producto.cantidad } : p)),
-      )
+        productos.map((p) =>
+          p.nombre === producto.nombre
+            ? { ...p, cantidad: p.cantidad + producto.cantidad }
+            : p
+        )
+      );
     } else {
       setProductos([
         ...productos,
@@ -78,55 +87,55 @@ const PresupuestoEditForm = ({ presupuesto }) => {
           id: Date.now(),
           subtotal: producto.cantidad * producto.precioUnitario,
         },
-      ])
+      ]);
     }
-  }
+  };
 
   const eliminarProducto = (id) => {
-    setProductos(productos.filter((producto) => producto.id !== id))
-  }
+    setProductos(productos.filter((producto) => producto.id !== id));
+  };
 
   const calcularSubtotal = () => {
-    return productos.reduce((total, producto) => total + producto.subtotal, 0)
-  }
+    return productos.reduce((total, producto) => total + producto.subtotal, 0);
+  };
 
   const calcularDescuento = () => {
-    const subtotal = calcularSubtotal()
-    const descuentoRate = Number.parseFloat(opciones.descuento) / 100
-    return subtotal * descuentoRate
-  }
+    const subtotal = calcularSubtotal();
+    const descuentoRate = Number.parseFloat(opciones.descuento) / 100;
+    return subtotal * descuentoRate;
+  };
 
   const calcularIVA = () => {
-    const subtotal = calcularSubtotal()
-    const descuento = calcularDescuento()
-    const baseImponible = subtotal - descuento
-    const ivaRate = Number.parseFloat(opciones.iva) / 100
-    return baseImponible * ivaRate
-  }
+    const subtotal = calcularSubtotal();
+    const descuento = calcularDescuento();
+    const baseImponible = subtotal - descuento;
+    const ivaRate = Number.parseFloat(opciones.iva) / 100;
+    return baseImponible * ivaRate;
+  };
 
   const calcularTotal = () => {
-    const subtotal = calcularSubtotal()
-    const descuento = calcularDescuento()
-    const iva = calcularIVA()
-    return subtotal - descuento + iva
-  }
+    const subtotal = calcularSubtotal();
+    const descuento = calcularDescuento();
+    const iva = calcularIVA();
+    return subtotal - descuento + iva;
+  };
 
   const handleClienteChange = (nuevoCliente) => {
-    setCliente({ ...cliente, ...nuevoCliente })
-  }
+    setCliente({ ...cliente, ...nuevoCliente });
+  };
 
   const handleOpcionesChange = (nuevasOpciones) => {
-    setOpciones({ ...opciones, ...nuevasOpciones })
-  }
+    setOpciones({ ...opciones, ...nuevasOpciones });
+  };
 
   const guardarPresupuesto = async () => {
     if (productos.length === 0) {
-      showToast("Debe agregar al menos un producto", "error")
-      return
+      showToast("Debe agregar al menos un producto", "error");
+      return;
     }
 
     try {
-      setSaving(true)
+      setSaving(true);
 
       const presupuestoData = {
         cliente: {
@@ -143,10 +152,10 @@ const PresupuestoEditForm = ({ presupuesto }) => {
         iva_monto: calcularIVA(),
         total: calcularTotal(),
         iva_porcentaje: opciones.iva,
-      }
+      };
 
-      console.log("Enviando datos:", JSON.stringify(presupuestoData))
-      console.log("ID del presupuesto para actualizar:", presupuesto.id)
+      console.log("Enviando datos:", JSON.stringify(presupuestoData));
+      console.log("ID del presupuesto para actualizar:", presupuesto.id);
 
       const response = await fetch(`/api/presupuestos/${presupuesto.id}`, {
         method: "PUT",
@@ -154,29 +163,34 @@ const PresupuestoEditForm = ({ presupuesto }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(presupuestoData),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Error al actualizar el presupuesto")
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || "Error al actualizar el presupuesto"
+        );
       }
 
-      showToast("Presupuesto actualizado correctamente", "success")
-      router.push(`/presupuestos/${presupuesto.id}`)
+      showToast("Presupuesto actualizado correctamente", "success");
+      router.push(`/presupuestos/${presupuesto.id}`);
     } catch (error) {
-      console.error("Error al actualizar presupuesto:", error)
-      showToast(`Error al actualizar el presupuesto: ${error.message}`, "error")
+      console.error("Error al actualizar presupuesto:", error);
+      showToast(
+        `Error al actualizar el presupuesto: ${error.message}`,
+        "error"
+      );
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   if (!presupuesto) {
     return (
       <div className="presupuesto-container">
         <div className="loading">Presupuesto no encontrado</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -201,10 +215,16 @@ const PresupuestoEditForm = ({ presupuesto }) => {
         </div>
       </div>
 
-      {showClienteForm && <ClienteForm cliente={cliente} onChange={handleClienteChange} />}
+      {showClienteForm && (
+        <ClienteForm cliente={cliente} onChange={handleClienteChange} />
+      )}
 
       {showOpcionesForm && (
-        <OpcionesForm iva={opciones.iva} descuento={opciones.descuento} onChange={handleOpcionesChange} />
+        <OpcionesForm
+          iva={opciones.iva}
+          descuento={opciones.descuento}
+          onChange={handleOpcionesChange}
+        />
       )}
 
       <section className="section">
@@ -216,25 +236,39 @@ const PresupuestoEditForm = ({ presupuesto }) => {
         <h2 className="section-title">PEDIDO</h2>
         {productos.length > 0 ? (
           <>
-            <ProductList productos={productos} onEliminarProducto={eliminarProducto} />
+            <ProductList
+              productos={productos}
+              onEliminarProducto={eliminarProducto}
+            />
             <div className="total-container">
               <div className="total-details">
                 <p className="subtotal">
-                  Subtotal: <span className="amount">${calcularSubtotal().toLocaleString()}</span>
+                  Subtotal:{" "}
+                  <span className="amount">
+                    ${calcularSubtotal().toLocaleString()}
+                  </span>
                 </p>
                 {Number.parseFloat(opciones.descuento) > 0 && (
                   <p className="descuento">
                     Descuento ({opciones.descuento}):{" "}
-                    <span className="amount">-${calcularDescuento().toLocaleString()}</span>
+                    <span className="amount">
+                      -${calcularDescuento().toLocaleString()}
+                    </span>
                   </p>
                 )}
                 {Number.parseFloat(opciones.iva) > 0 && (
                   <p className="iva">
-                    IVA ({opciones.iva}): <span className="amount">${calcularIVA().toLocaleString()}</span>
+                    IVA ({opciones.iva}):{" "}
+                    <span className="amount">
+                      ${calcularIVA().toLocaleString()}
+                    </span>
                   </p>
                 )}
                 <p className="total">
-                  Total: <span className="total-amount">${calcularTotal().toLocaleString()}</span>
+                  Total:{" "}
+                  <span className="total-amount">
+                    ${calcularTotal().toLocaleString()}
+                  </span>
                 </p>
               </div>
             </div>
@@ -244,7 +278,10 @@ const PresupuestoEditForm = ({ presupuesto }) => {
         )}
 
         <div className="action-buttons-centered">
-          <button className="btn btn-secondary btn-icon" onClick={() => router.back()}>
+          <button
+            className="btn btn-secondary btn-icon"
+            onClick={() => router.back()}
+          >
             <ArrowLeft size={20} />
             <span>Cancelar</span>
           </button>
@@ -259,8 +296,7 @@ const PresupuestoEditForm = ({ presupuesto }) => {
         </div>
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default PresupuestoEditForm
-
+export default PresupuestoEditForm;

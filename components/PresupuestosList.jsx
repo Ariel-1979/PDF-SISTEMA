@@ -36,9 +36,9 @@ const PresupuestosList = () => {
       }
 
       const data = await res.json();
+
       setPresupuestos(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error al cargar presupuestos:", error);
       showToast("Error al cargar presupuestos: " + error.message, "error");
     } finally {
       setLoading(false);
@@ -49,7 +49,6 @@ const PresupuestosList = () => {
     e.preventDefault();
 
     if (!searchQuery.trim()) {
-      // Si la búsqueda está vacía, cargar todos los presupuestos
       fetchPresupuestos();
       return;
     }
@@ -58,7 +57,6 @@ const PresupuestosList = () => {
       setSearching(true);
       setLoading(true);
 
-      console.log("Buscando presupuestos con término:", searchQuery.trim());
       const res = await fetch(
         `/api/presupuestos?query=${encodeURIComponent(searchQuery.trim())}`
       );
@@ -69,10 +67,8 @@ const PresupuestosList = () => {
       }
 
       const data = await res.json();
-      console.log("Resultados de búsqueda:", data);
       setPresupuestos(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error al buscar presupuestos:", error);
       showToast("Error al buscar presupuestos: " + error.message, "error");
     } finally {
       setLoading(false);
@@ -155,26 +151,16 @@ const PresupuestosList = () => {
     try {
       setConverting(true);
 
-      // Corregir la fecha de entrega si es necesario
       let fechaEntregaCorregida = fechaEntrega;
       if (fechaEntrega) {
-        // Crear un objeto Date a partir de la fecha seleccionada
         const fecha = new Date(fechaEntrega);
 
-        // Obtener el año actual
         const añoActual = new Date().getFullYear();
 
-        // Si el año de la fecha es diferente al año actual, corregirlo
         if (fecha.getFullYear() !== añoActual) {
-          // Establecer el año correcto
           fecha.setFullYear(añoActual);
 
-          // Formatear la fecha como YYYY-MM-DD
           fechaEntregaCorregida = fecha.toISOString().split("T")[0];
-          console.log(
-            "Fecha de entrega corregida en handleConfirmarConversion:",
-            fechaEntregaCorregida
-          );
         }
       }
 
