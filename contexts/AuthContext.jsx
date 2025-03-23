@@ -3,10 +3,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-// Crear el contexto
 const AuthContext = createContext();
 
-// Hook personalizado para usar el contexto
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -15,13 +13,11 @@ export const useAuth = () => {
   return context;
 };
 
-// Proveedor del contexto
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Función para verificar si el usuario está autenticado
   const checkAuth = async () => {
     try {
       setLoading(true);
@@ -34,14 +30,12 @@ export function AuthProvider({ children }) {
         setUser(null);
       }
     } catch (error) {
-      console.error("Error al verificar autenticación:", error);
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-  // Función para iniciar sesión
   const login = async (email, password) => {
     try {
       const res = await fetch("/api/auth/login", {
@@ -62,12 +56,10 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       return { success: true };
     } catch (error) {
-      console.error("Error al iniciar sesión:", error);
       return { success: false, error: error.message };
     }
   };
 
-  // Función para cerrar sesión
   const logout = async () => {
     try {
       await fetch("/api/auth/logout", {
@@ -81,12 +73,10 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Verificar autenticación al cargar la página
   useEffect(() => {
     checkAuth();
   }, []);
 
-  // Valores que se proporcionarán a través del contexto
   const value = {
     user,
     loading,

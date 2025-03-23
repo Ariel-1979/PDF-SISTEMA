@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Eye, EyeOff, LogIn } from "lucide-react";
-import styles from "./login.module.css";
+import styles from "../styles/login.module.css";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

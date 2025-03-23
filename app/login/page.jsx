@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, LogIn } from "lucide-react";
-import styles from "../login.module.css";
+import styles from "../../styles/login.module.css";
 import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
