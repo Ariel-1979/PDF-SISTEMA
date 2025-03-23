@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import styles from "../login.module.css";
 import { useToast } from "@/hooks/use-toast";

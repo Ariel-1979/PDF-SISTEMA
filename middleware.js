@@ -1,7 +1,22 @@
 import { NextResponse } from "next/server";
 
 export async function middleware(request) {
+  const path = request.nextUrl.pathname;
   const authToken = await request.cookies.get("auth_token")?.value;
+
+  const isStaticAsset =
+    path.startsWith("/favicon.ico") ||
+    path.startsWith("/_next") ||
+    path.startsWith("/images") ||
+    path.endsWith(".png") ||
+    path.endsWith(".jpg") ||
+    path.endsWith(".svg") ||
+    path.endsWith(".ico");
+
+  // Si es un activo estático, permitir el acceso sin verificar autenticación
+  if (isStaticAsset) {
+    return NextResponse.next();
+  }
 
   const isLoginPage = request.nextUrl.pathname === "/login";
 
