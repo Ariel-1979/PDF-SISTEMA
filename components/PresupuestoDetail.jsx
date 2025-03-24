@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
@@ -12,16 +12,52 @@ const PresupuestoDetail = ({ presupuesto }) => {
   const [montoRestante, setMontoRestante] = useState(0);
   const [fechaEntrega, setFechaEntrega] = useState("");
   const [showConvertForm, setShowConvertForm] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const { showToast } = useToast();
+
+  // Establecer isClient a true cuando el componente se monte en el cliente
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Función segura para formatear fechas que evita problemas de hidratación
+  const formatDate = useCallback(
+    (dateString) => {
+      if (!isClient) {
+        // En el servidor, no formateamos la fecha para evitar problemas de hidratación
+        return "";
+      }
+
+      if (!dateString) return "No especificada";
+
+      // En el cliente, formateamos la fecha con un locale específico
+      const date = new Date(dateString);
+      return date.toLocaleDateString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    },
+    [isClient]
+  );
+
+  // Función segura para formatear números que evita problemas de hidratación
+  const formatNumber = useCallback(
+    (number) => {
+      if (!isClient) {
+        // En el servidor, devolvemos el número sin formatear
+        return number;
+      }
+
+      return Number(number).toLocaleString("es-AR");
+    },
+    [isClient]
+  );
 
   // Agregar más logs para depuración
   useEffect(() => {
     if (presupuesto) {
-      console.log(
-        "PresupuestoDetail - ID del presupuesto cargado:",
-        presupuesto.id
-      );
       console.log(
         "PresupuestoDetail - Datos completos del presupuesto:",
         presupuesto
@@ -37,14 +73,8 @@ const PresupuestoDetail = ({ presupuesto }) => {
     );
   }
 
-  // Asegurarnos de que estamos usando el ID correcto
   const presupuestoId = presupuesto.id;
-  console.log(
-    "PresupuestoDetail - ID que se usará para operaciones:",
-    presupuestoId
-  );
 
-  // Reemplazar la función generarPDF con esta versión mejorada
   const generarPDF = async () => {
     try {
       // Importamos jsPDF y autoTable dinámicamente
@@ -68,11 +98,9 @@ const PresupuestoDetail = ({ presupuesto }) => {
         logoImg.onload = resolve;
       });
 
-      // Calcular dimensiones para mantener la proporción
       const imgWidth = 50;
       const imgHeight = (logoImg.height * imgWidth) / logoImg.width;
 
-      // Agregar logo centrado
       doc.addImage(
         logoImg,
         "PNG",
@@ -82,16 +110,13 @@ const PresupuestoDetail = ({ presupuesto }) => {
         imgHeight
       );
 
-      // Encabezado - Orden cambiado según lo solicitado
       doc.setFontSize(14);
       doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
       doc.text("Materiales para la Construcción", 105, 40, { align: "center" });
-
       doc.setFontSize(22);
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.text("PRESUPUESTO", 105, 50, { align: "center" });
 
-      // Número de presupuesto y fecha en el mismo renglón
       const fecha = new Date(presupuesto.fecha_creacion).toLocaleDateString(
         "es-AR",
         {
@@ -107,7 +132,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
         align: "center",
       });
 
-      // Información del cliente - En negrita sin fondo naranja
       doc.setFontSize(12);
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
       doc.setFont(undefined, "bold");
@@ -117,12 +141,10 @@ const PresupuestoDetail = ({ presupuesto }) => {
       doc.setFontSize(10);
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
 
-      // Organizar datos del cliente en dos columnas para aprovechar espacio
       let leftColY = 85;
       let rightColY = 85;
       const midPoint = doc.internal.pageSize.width / 2;
 
-      // Columna izquierda
       doc.text(`Cliente: ${presupuesto.nombre}`, 15, leftColY);
       leftColY += 7;
 
@@ -131,7 +153,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
         leftColY += 7;
       }
 
-      // Columna derecha
       if (presupuesto.entre_calles) {
         doc.text(
           `Entre calles: ${presupuesto.entre_calles}`,
@@ -146,10 +167,8 @@ const PresupuestoDetail = ({ presupuesto }) => {
         rightColY += 7;
       }
 
-      // Usar el máximo de las dos columnas para el siguiente elemento
       let yPos = Math.max(leftColY, rightColY) + 5;
 
-      // Detalle de productos - En negrita sin fondo naranja
       doc.setFontSize(12);
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
       doc.setFont(undefined, "bold");
@@ -158,7 +177,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
 
       yPos += 10;
 
-      // Preparar datos para la tabla
       const tableColumn = [
         "Cantidad",
         "Producto",
@@ -177,7 +195,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
         tableRows.push(productData);
       });
 
-      // Usar autoTable como función independiente
       autoTable(doc, {
         head: [tableColumn],
         body: tableRows,
@@ -206,22 +223,80 @@ const PresupuestoDetail = ({ presupuesto }) => {
         },
       });
 
-      // Totales - Mejorar padding/margin
       const finalY = doc.lastAutoTable.finalY + 10;
 
-      // Ajustar el ancho y posición de los totales
       const totalsWidth = 80;
       const totalsX = doc.internal.pageSize.width - totalsWidth - 10; // 10 es el margen derecho
 
-      const totalY = finalY;
+      let totalY = finalY;
+
+      // Subtotal
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Subtotal:", totalsX, totalY);
+
+      doc.setFontSize(10);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.text(
+        `$ ${Number(subtotal).toLocaleString("es-AR")}`,
+        doc.internal.pageSize.width - 10,
+        totalY,
+        {
+          align: "right",
+        }
+      );
+
+      // IVA (si aplica)
+      if (Number(ivaPorcentaje) > 0) {
+        totalY += 8;
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`IVA (${presupuesto.iva_porcentaje}):`, totalsX, totalY);
+
+        doc.setFontSize(10);
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.text(
+          `$ ${Number(ivaMonto).toLocaleString("es-AR")}`,
+          doc.internal.pageSize.width - 10,
+          totalY,
+          {
+            align: "right",
+          }
+        );
+      }
+
+      // Descuento (si aplica)
+      if (Number(descuentoPorcentaje) > 0) {
+        totalY += 8;
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          `Descuento (${presupuesto.descuento_porcentaje}):`,
+          totalsX,
+          totalY
+        );
+
+        doc.setFontSize(10);
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.text(
+          `-$ ${Number(descuentoMonto).toLocaleString("es-AR")}`,
+          doc.internal.pageSize.width - 10,
+          totalY,
+          {
+            align: "right",
+          }
+        );
+      }
 
       // Total final - En negrita sin fondo naranja
+      totalY += 10;
+
       doc.setFontSize(11);
       doc.setFont(undefined, "bold");
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.text("TOTAL:", totalsX, totalY);
       doc.text(
-        `$ ${Number(presupuesto.total).toLocaleString("es-AR")}`,
+        `$ ${Number(total).toLocaleString("es-AR")}`,
         doc.internal.pageSize.width - 10,
         totalY,
         {
@@ -402,12 +477,32 @@ const PresupuestoDetail = ({ presupuesto }) => {
   const descuentoPorcentaje =
     presupuesto.descuento_porcentaje?.replace("%", "") || 0;
   const descuentoMonto = presupuesto.descuento_monto || 0;
+
+  // Asegurarse de que el total sea correcto
   const total = presupuesto.total || subtotal + ivaMonto - descuentoMonto;
 
-  // Formatear la fecha
-  const fechaCreacion = presupuesto.fecha_creacion
-    ? new Date(presupuesto.fecha_creacion).toLocaleDateString()
-    : "No especificada";
+  // Añadir logs para depuración
+  useEffect(() => {
+    if (isClient && presupuesto) {
+      console.log("Valores para cálculos:");
+      console.log("Subtotal:", subtotal);
+      console.log("IVA %:", ivaPorcentaje);
+      console.log("IVA monto:", ivaMonto);
+      console.log("Descuento %:", descuentoPorcentaje);
+      console.log("Descuento monto:", descuentoMonto);
+      console.log("Total calculado:", total);
+      console.log("Total del presupuesto:", presupuesto.total);
+    }
+  }, [
+    isClient,
+    presupuesto,
+    subtotal,
+    ivaPorcentaje,
+    ivaMonto,
+    descuentoPorcentaje,
+    descuentoMonto,
+    total,
+  ]);
 
   return (
     <div className="presupuesto-detail-container">
@@ -532,7 +627,8 @@ const PresupuestoDetail = ({ presupuesto }) => {
           </div>
           <div className="presupuesto-detail-meta">
             <p>
-              <strong>Fecha:</strong> {fechaCreacion}
+              <strong>Fecha:</strong>{" "}
+              {isClient ? formatDate(presupuesto.fecha_creacion) : ""}
             </p>
             <p>
               <strong>Estado:</strong> Presupuesto
@@ -595,10 +691,14 @@ const PresupuestoDetail = ({ presupuesto }) => {
                 className="presupuesto-detail-column"
                 data-label="Precio Unitario"
               >
-                $ {Number(producto.precio_unitario).toLocaleString()}
+                ${" "}
+                {isClient
+                  ? formatNumber(producto.precio_unitario)
+                  : producto.precio_unitario}
               </div>
               <div className="presupuesto-detail-column" data-label="Subtotal">
-                $ {Number(producto.subtotal).toLocaleString()}
+                ${" "}
+                {isClient ? formatNumber(producto.subtotal) : producto.subtotal}
               </div>
             </div>
           ))}
@@ -606,12 +706,13 @@ const PresupuestoDetail = ({ presupuesto }) => {
           <div className="presupuesto-detail-table-footer">
             <div className="presupuesto-detail-total">
               <p>
-                <strong>Subtotal:</strong> $ {Number(subtotal).toLocaleString()}
+                <strong>Subtotal:</strong> ${" "}
+                {isClient ? formatNumber(subtotal) : subtotal}
               </p>
               {Number(ivaPorcentaje) > 0 && (
                 <p>
                   <strong>IVA ({presupuesto.iva_porcentaje}):</strong> ${" "}
-                  {Number(ivaMonto).toLocaleString()}
+                  {isClient ? formatNumber(ivaMonto) : ivaMonto}
                 </p>
               )}
               {Number(descuentoPorcentaje) > 0 && (
@@ -619,13 +720,13 @@ const PresupuestoDetail = ({ presupuesto }) => {
                   <strong>
                     Descuento ({presupuesto.descuento_porcentaje}):
                   </strong>{" "}
-                  $ {Number(descuentoMonto).toLocaleString()}
+                  $ {isClient ? formatNumber(descuentoMonto) : descuentoMonto}
                 </p>
               )}
               <p className="total-final">
                 <strong>Total:</strong>{" "}
                 <span className="total-amount">
-                  $ {Number(total).toLocaleString()}
+                  $ {isClient ? formatNumber(total) : total}
                 </span>
               </p>
             </div>
