@@ -66,19 +66,14 @@ const PedidoDetail = ({ pedido }) => {
     );
   }
 
-  // Asegurarnos de que estamos usando el ID correcto
   const pedidoId = pedido.id;
-  console.log("PedidoDetail - ID que se usará para operaciones:", pedidoId);
 
-  // Calcular subtotal e IVA
   const subtotal = pedido.subtotal || pedido.total;
   const ivaPorcentaje = pedido.iva_porcentaje || "0%";
+  const descuentoPorcentaje = pedido.descuento_porcentaje || "0%";
+  const descuentoMonto = pedido.descuento_monto || 0;
   const ivaMonto = pedido.iva_monto || 0;
   const total = pedido.total;
-
-  // Modifica la función generarPDF para usar importación dinámica
-  // Modificar la función generarPDF para implementar los cambios solicitados
-  // Buscar la función generarPDF y reemplazar con esta versión actualizada
 
   const generarPDF = async () => {
     try {
@@ -337,6 +332,29 @@ const PedidoDetail = ({ pedido }) => {
         );
       }
 
+      // Descuento (si aplica)
+      if (
+        Number(descuentoMonto) > 0 ||
+        (descuentoPorcentaje &&
+          Number(descuentoPorcentaje.replace("%", "")) > 0)
+      ) {
+        totalY += 8;
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Descuento (${descuentoPorcentaje}):`, totalsX, totalY);
+
+        doc.setFontSize(10);
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.text(
+          `-$${Number(descuentoMonto).toLocaleString("es-AR")}`,
+          doc.internal.pageSize.width - 10,
+          totalY,
+          {
+            align: "right",
+          }
+        );
+      }
+
       // Total final - En negrita sin fondo naranja
       totalY += 10;
 
@@ -461,7 +479,6 @@ const PedidoDetail = ({ pedido }) => {
       doc.save(`Pedido_${pedido.numero}_${Date.now()}.pdf`);
       showToast("PDF generado correctamente", "success");
     } catch (error) {
-      console.error("Error al generar PDF:", error);
       showToast("Error al generar el PDF: " + error.message, "error");
     }
   };
@@ -500,26 +517,16 @@ const PedidoDetail = ({ pedido }) => {
     try {
       setSaving(true);
 
-      // Corregir la fecha de entrega si es necesario
       let fechaEntregaCorregida = fechaEntrega;
       if (fechaEntrega) {
-        // Crear un objeto Date a partir de la fecha seleccionada
         const fecha = new Date(fechaEntrega);
 
-        // Obtener el año actual
         const añoActual = new Date().getFullYear();
 
-        // Si el año de la fecha es diferente al año actual, corregirlo
         if (fecha.getFullYear() !== añoActual) {
-          // Establecer el año correcto
           fecha.setFullYear(añoActual);
 
-          // Formatear la fecha como YYYY-MM-DD
           fechaEntregaCorregida = fecha.toISOString().split("T")[0];
-          console.log(
-            "Fecha de entrega corregida en handleSaveChanges:",
-            fechaEntregaCorregida
-          );
         }
       }
 
@@ -530,12 +537,6 @@ const PedidoDetail = ({ pedido }) => {
         monto_restante: estadoPago === "resta_abonar" ? montoRestante : 0,
         fecha_entrega: fechaEntregaCorregida || null,
       };
-
-      console.log(
-        "Enviando datos para actualizar estado:",
-        JSON.stringify(data)
-      );
-      console.log("ID del pedido para actualizar estado:", pedidoId);
 
       const response = await fetch(
         `/api/pedidos/${pedidoId}/actualizar-estado`,
@@ -559,14 +560,12 @@ const PedidoDetail = ({ pedido }) => {
       // Recargar la página para mostrar los cambios actualizados
       window.location.reload();
     } catch (error) {
-      console.error("Error al actualizar pedido:", error);
       showToast(`Error al actualizar el pedido: ${error.message}`, "error");
     } finally {
       setSaving(false);
     }
   };
 
-  // Mostrar la fecha de entrega si existe
   const mostrarFechaEntrega = pedido.fecha_entrega
     ? new Date(pedido.fecha_entrega).toLocaleDateString()
     : "No especificada";
@@ -832,6 +831,12 @@ const PedidoDetail = ({ pedido }) => {
                 <p>
                   <strong>IVA ({ivaPorcentaje}):</strong> ${" "}
                   {Number(ivaMonto).toLocaleString()}
+                </p>
+              )}
+              {Number.parseFloat(descuentoPorcentaje) > 0 && (
+                <p>
+                  <strong>DESCUENTO ({descuentoPorcentaje}):</strong> ${" "}
+                  {Number(descuentoMonto).toLocaleString()}
                 </p>
               )}
               <p className="total-final">
