@@ -4,6 +4,29 @@ export async function middleware(request) {
   const path = request.nextUrl.pathname;
   const authToken = await request.cookies.get("auth_token")?.value;
 
+  // Crear la respuesta base
+  const response = NextResponse.next();
+
+  // Configurar headers CORS para todas las respuestas
+  response.headers.set("Access-Control-Allow-Origin", "*"); // O 'https://sistemas-casaluongo.com.ar'
+  response.headers.set(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+  );
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Date, X-Api-Version"
+  );
+  response.headers.set("Access-Control-Allow-Credentials", "true");
+
+  // Manejar solicitudes OPTIONS (preflight)
+  if (request.method === "OPTIONS") {
+    return new NextResponse(null, {
+      status: 204,
+      headers: response.headers,
+    });
+  }
+
   const isStaticAsset =
     path.startsWith("/favicon.ico") ||
     path.startsWith("/_next") ||
@@ -15,7 +38,7 @@ export async function middleware(request) {
 
   // Si es un activo estático, permitir el acceso sin verificar autenticación
   if (isStaticAsset) {
-    return NextResponse.next();
+    return response;
   }
 
   const isLoginPage = request.nextUrl.pathname === "/login";
@@ -30,7 +53,7 @@ export async function middleware(request) {
     return NextResponse.redirect(dashboardUrl);
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
