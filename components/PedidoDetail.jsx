@@ -120,7 +120,10 @@ const PedidoDetail = ({ pedido }) => {
       doc.setFontSize(22);
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.text("PEDIDO", 105, 50, { align: "center" });
-
+      const textWidth = doc.getTextWidth("PEDIDO");
+      doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setLineWidth(0.5);
+      doc.line(105 - textWidth / 2, 52, 105 + textWidth / 2, 52);
       // Número de pedido y fecha en el mismo renglón
       const fecha = new Date(
         pedido.fecha_conversion || pedido.fecha_creacion
@@ -132,8 +135,9 @@ const PedidoDetail = ({ pedido }) => {
 
       doc.setFontSize(10);
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-      doc.text(`NÚMERO: ${pedido.numero}   |   FECHA: ${fecha}`, 105, 62, {
-        align: "center",
+      doc.text(`Pedido Nro.: ${pedido.numero}`, 15, 62);
+      doc.text(`FECHA: ${fecha}`, doc.internal.pageSize.width - 15, 62, {
+        align: "right",
       });
 
       // Fecha de entrega si existe
@@ -142,10 +146,10 @@ const PedidoDetail = ({ pedido }) => {
           `FECHA DE ENTREGA: ${new Date(
             pedido.fecha_entrega
           ).toLocaleDateString("es-AR")}`,
-          105,
-          70,
+          doc.internal.pageSize.width - 15,
+          68,
           {
-            align: "center",
+            align: "right",
           }
         );
       }

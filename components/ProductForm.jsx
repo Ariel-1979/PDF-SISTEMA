@@ -12,15 +12,23 @@ const ProductForm = ({ onAgregarProducto }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProducto({
-      ...producto,
-      [name]:
-        name === "cantidad" || name === "precioUnitario"
-          ? value === ""
-            ? ""
-            : Number(value)
-          : value,
-    });
+
+    // Para campos numéricos (cantidad y precioUnitario)
+    if (name === "cantidad" || name === "precioUnitario") {
+      // Permitir valores vacíos o números con decimales positivos
+      if (value === "" || /^\d*\.?\d*$/.test(value)) {
+        setProducto({
+          ...producto,
+          [name]: value,
+        });
+      }
+    } else {
+      // Para campos de texto (nombre)
+      setProducto({
+        ...producto,
+        [name]: value,
+      });
+    }
   };
 
   const handleSubmit = (e) => {
@@ -31,9 +39,21 @@ const ProductForm = ({ onAgregarProducto }) => {
       return;
     }
 
+    // Convertir a números para el cálculo
+    const cantidad = Number.parseFloat(producto.cantidad);
+    const precioUnitario = Number.parseFloat(producto.precioUnitario);
+
+    // Validar que sean números válidos
+    if (isNaN(cantidad) || isNaN(precioUnitario)) {
+      alert("Por favor ingrese valores numéricos válidos");
+      return;
+    }
+
     onAgregarProducto({
       ...producto,
-      subtotal: producto.cantidad * producto.precioUnitario,
+      cantidad: cantidad,
+      precioUnitario: precioUnitario,
+      subtotal: cantidad * precioUnitario,
     });
 
     // Limpiar el formulario
@@ -50,12 +70,12 @@ const ProductForm = ({ onAgregarProducto }) => {
         <div className={styles.inputColumn}>
           <label htmlFor="cantidad">Cantidad</label>
           <input
-            type="number"
+            type="text"
             id="cantidad"
             name="cantidad"
             value={producto.cantidad}
             onChange={handleChange}
-            min="1"
+            placeholder=""
           />
         </div>
 
@@ -73,12 +93,12 @@ const ProductForm = ({ onAgregarProducto }) => {
         <div className={styles.inputColumn}>
           <label htmlFor="precioUnitario">Precio Unitario</label>
           <input
-            type="number"
+            type="text"
             id="precioUnitario"
             name="precioUnitario"
             value={producto.precioUnitario}
             onChange={handleChange}
-            min="0"
+            placeholder="0"
           />
         </div>
 

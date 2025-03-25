@@ -16,22 +16,18 @@ const PresupuestoDetail = ({ presupuesto }) => {
   const router = useRouter();
   const { showToast } = useToast();
 
-  // Establecer isClient a true cuando el componente se monte en el cliente
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Función segura para formatear fechas que evita problemas de hidratación
   const formatDate = useCallback(
     (dateString) => {
       if (!isClient) {
-        // En el servidor, no formateamos la fecha para evitar problemas de hidratación
         return "";
       }
 
       if (!dateString) return "No especificada";
 
-      // En el cliente, formateamos la fecha con un locale específico
       const date = new Date(dateString);
       return date.toLocaleDateString("es-AR", {
         day: "2-digit",
@@ -55,7 +51,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
     [isClient]
   );
 
-  // Agregar más logs para depuración
   useEffect(() => {
     if (presupuesto) {
       console.log(
@@ -114,8 +109,14 @@ const PresupuestoDetail = ({ presupuesto }) => {
       doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
       doc.text("Materiales para la Construcción", 105, 40, { align: "center" });
       doc.setFontSize(22);
+
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.text("PRESUPUESTO", 105, 50, { align: "center" });
+      // Añadir línea de subrayado
+      const textWidth = doc.getTextWidth("PRESUPUESTO");
+      doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setLineWidth(0.5);
+      doc.line(105 - textWidth / 2, 52, 105 + textWidth / 2, 52);
 
       const fecha = new Date(presupuesto.fecha_creacion).toLocaleDateString(
         "es-AR",
@@ -128,8 +129,11 @@ const PresupuestoDetail = ({ presupuesto }) => {
 
       doc.setFontSize(10);
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-      doc.text(`NÚMERO: ${presupuesto.numero}   |   FECHA: ${fecha}`, 105, 62, {
-        align: "center",
+      // Número a la izquierda
+      doc.text(`Presupuesto Nro.: ${presupuesto.numero}`, 15, 62);
+      // Fecha a la derecha
+      doc.text(`FECHA: ${fecha}`, doc.internal.pageSize.width - 15, 62, {
+        align: "right",
       });
 
       doc.setFontSize(12);
