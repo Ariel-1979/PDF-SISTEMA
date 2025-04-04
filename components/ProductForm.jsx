@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import styles from "@/styles/ProductForm.module.css";
 
 const ProductForm = ({ onAgregarProducto }) => {
@@ -9,6 +9,7 @@ const ProductForm = ({ onAgregarProducto }) => {
     nombre: "",
     precioUnitario: "",
   });
+  const inputCantidadRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,6 +63,7 @@ const ProductForm = ({ onAgregarProducto }) => {
       nombre: "",
       precioUnitario: "",
     });
+    inputCantidadRef.current?.focus();
   };
 
   return (
@@ -70,12 +72,14 @@ const ProductForm = ({ onAgregarProducto }) => {
         <div className={styles.inputColumn}>
           <label htmlFor="cantidad">Cantidad</label>
           <input
+            ref={inputCantidadRef}
             type="text"
             id="cantidad"
             name="cantidad"
             value={producto.cantidad}
             onChange={handleChange}
             placeholder=""
+            autoFocus={true}
           />
         </div>
 
