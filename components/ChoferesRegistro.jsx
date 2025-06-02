@@ -104,10 +104,6 @@ const ChoferesRegistro = () => {
             }
 
             const data = await res.json();
-            console.log(
-              `Pedidos obtenidos para ${chofer.nombre}:`,
-              data.length
-            );
 
             // Filtrar pedidos para la fecha seleccionada
             const pedidosFiltrados = Array.isArray(data)
@@ -126,9 +122,6 @@ const ChoferesRegistro = () => {
                 })
               : [];
 
-            console.log(
-              `Pedidos filtrados para ${chofer.nombre} en fecha ${selectedDate}: ${pedidosFiltrados.length}`
-            );
             pedidosTemp[chofer.nombre] = pedidosFiltrados;
           } catch (error) {
             console.error(
@@ -168,7 +161,6 @@ const ChoferesRegistro = () => {
   };
 
   const handleDateChange = (date) => {
-    console.log("Nueva fecha seleccionada:", date);
     setSelectedDate(date);
   };
 

@@ -38,7 +38,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
     [isClient]
   );
 
-  // Función segura para formatear números que evita problemas de hidratación
   const formatNumber = useCallback(
     (number) => {
       if (!isClient) {
@@ -51,14 +50,7 @@ const PresupuestoDetail = ({ presupuesto }) => {
     [isClient]
   );
 
-  useEffect(() => {
-    if (presupuesto) {
-      console.log(
-        "PresupuestoDetail - Datos completos del presupuesto:",
-        presupuesto
-      );
-    }
-  }, [presupuesto]);
+  useEffect(() => {}, [presupuesto]);
 
   if (!presupuesto) {
     return (
@@ -72,27 +64,21 @@ const PresupuestoDetail = ({ presupuesto }) => {
 
   const generarPDF = async () => {
     try {
-      // Importamos jsPDF y autoTable dinámicamente
       const { jsPDF } = await import("jspdf");
       const autoTable = (await import("jspdf-autotable")).default;
 
-      // Crear un nuevo documento PDF
       const doc = new jsPDF();
 
-      // Colores corporativos
-      const primaryColor = [255, 102, 0]; // Naranja #ff6600
-      const secondaryColor = [74, 109, 167]; // Azul #4a6da7
-      const textColor = [51, 51, 51]; // Gris oscuro #333333
+      const primaryColor = [255, 102, 0];
+      const secondaryColor = [74, 109, 167];
+      const textColor = [51, 51, 51];
 
-      // Agregar logo
       const logoImg = new Image();
       logoImg.src =
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo_Luongo-2yJWkbBhykRbk43ImjzWGhnPvuw3uR.png";
-
       await new Promise((resolve) => {
         logoImg.onload = resolve;
       });
-
       const imgWidth = 50;
       const imgHeight = (logoImg.height * imgWidth) / logoImg.width;
 
@@ -106,15 +92,13 @@ const PresupuestoDetail = ({ presupuesto }) => {
       );
 
       doc.setFontSize(14);
-      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.setTextColor(...secondaryColor);
       doc.text("Materiales para la Construcción", 105, 40, { align: "center" });
       doc.setFontSize(22);
-
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setTextColor(...primaryColor);
       doc.text("PRESUPUESTO", 105, 50, { align: "center" });
-      // Añadir línea de subrayado
       const textWidth = doc.getTextWidth("PRESUPUESTO");
-      doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setDrawColor(...primaryColor);
       doc.setLineWidth(0.5);
       doc.line(105 - textWidth / 2, 52, 105 + textWidth / 2, 52);
 
@@ -128,22 +112,20 @@ const PresupuestoDetail = ({ presupuesto }) => {
       );
 
       doc.setFontSize(10);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-      // Número a la izquierda
+      doc.setTextColor(...textColor);
       doc.text(`Presupuesto Nro.: ${presupuesto.numero}`, 15, 62);
-      // Fecha a la derecha
       doc.text(`FECHA: ${fecha}`, doc.internal.pageSize.width - 15, 62, {
         align: "right",
       });
 
       doc.setFontSize(12);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setTextColor(...textColor);
       doc.setFont(undefined, "bold");
       doc.text("INFORMACIÓN DEL CLIENTE", 15, 75);
       doc.setFont(undefined, "normal");
 
       doc.setFontSize(10);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setTextColor(...textColor);
 
       let leftColY = 85;
       let rightColY = 85;
@@ -174,7 +156,7 @@ const PresupuestoDetail = ({ presupuesto }) => {
       let yPos = Math.max(leftColY, rightColY) + 5;
 
       doc.setFontSize(12);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setTextColor(...textColor);
       doc.setFont(undefined, "bold");
       doc.text("DETALLE DE PRODUCTOS", 15, yPos);
       doc.setFont(undefined, "normal");
@@ -187,199 +169,346 @@ const PresupuestoDetail = ({ presupuesto }) => {
         "Precio Unitario",
         "Subtotal",
       ];
-      const tableRows = [];
+      const tableRows = presupuesto.productos.map((producto) => [
+        producto.cantidad,
+        producto.nombre,
+        `$ ${Number(producto.precio_unitario).toLocaleString("es-AR")}`,
+        `$ ${Number(producto.subtotal).toLocaleString("es-AR")}`,
+      ]);
 
-      presupuesto.productos.forEach((producto) => {
-        const productData = [
-          producto.cantidad,
-          producto.nombre,
-          `$ ${Number(producto.precio_unitario).toLocaleString("es-AR")}`,
-          `$ ${Number(producto.subtotal).toLocaleString("es-AR")}`,
-        ];
-        tableRows.push(productData);
-      });
+      // Totales
+      const subtotal =
+        presupuesto.subtotal ||
+        presupuesto.productos.reduce(
+          (acc, producto) => acc + Number(producto.subtotal),
+          0
+        );
+      const ivaPorcentaje = presupuesto.iva_porcentaje?.replace("%", "") || 0;
+      const ivaMonto = presupuesto.iva_monto || 0;
+      const descuentoPorcentaje =
+        presupuesto.descuento_porcentaje?.replace("%", "") || 0;
+      const descuentoMonto = presupuesto.descuento_monto || 0;
+      const total = presupuesto.total || subtotal + ivaMonto - descuentoMonto;
 
-      autoTable(doc, {
-        head: [tableColumn],
-        body: tableRows,
-        startY: yPos,
-        theme: "grid",
-        styles: {
-          fontSize: 9,
-          cellPadding: 3,
-          lineColor: [200, 200, 200],
-          lineWidth: 0.1,
-        },
-        headStyles: {
-          fillColor: secondaryColor,
-          textColor: [255, 255, 255],
-          fontStyle: "bold",
-          halign: "center",
-        },
-        columnStyles: {
-          0: { halign: "center", cellWidth: 20 },
-          1: { halign: "left" },
-          2: { halign: "right", cellWidth: 35 },
-          3: { halign: "right", cellWidth: 35 },
-        },
-        alternateRowStyles: {
-          fillColor: [245, 245, 245],
-        },
-      });
+      // Leyenda footer
+      const addLeyendaFooter = (doc) => {
+        const pageHeight = doc.internal.pageSize.height;
+        const footerY = pageHeight - 60;
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.1);
+        doc.line(10, footerY, doc.internal.pageSize.width - 10, footerY);
 
-      const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text(
+          "Este presupuesto tiene una validez de 24 hs.",
+          10,
+          footerY + 10
+        );
+        doc.text(
+          "Los precios pueden estar sujetos a modificaciones sin previo aviso.",
+          10,
+          footerY + 15
+        );
+        doc.text(
+          "Los cambios y devoluciones se aceptan dentro de las 24/48hs de la recepción de la compra.",
+          10,
+          footerY + 20
+        );
+        doc.text(
+          "Los materiales o productos de segunda selección, no tienen cambio, ni devolución.",
+          10,
+          footerY + 25
+        );
 
-      const totalsWidth = 80;
-      const totalsX = doc.internal.pageSize.width - totalsWidth - 10; // 10 es el margen derecho
-
-      let totalY = finalY;
-
-      // Subtotal
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      doc.text("Subtotal:", totalsX, totalY);
-
-      doc.setFontSize(10);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-      doc.text(
-        `$ ${Number(subtotal).toLocaleString("es-AR")}`,
-        doc.internal.pageSize.width - 10,
-        totalY,
-        {
-          align: "right",
-        }
-      );
-
-      // IVA (si aplica)
-      if (Number(ivaPorcentaje) > 0) {
-        totalY += 8;
         doc.setFontSize(9);
         doc.setTextColor(100, 100, 100);
-        doc.text(`IVA (${presupuesto.iva_porcentaje}):`, totalsX, totalY);
-
-        doc.setFontSize(10);
-        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        const pageCenter = doc.internal.pageSize.width / 2;
         doc.text(
-          `$ ${Number(ivaMonto).toLocaleString("es-AR")}`,
-          doc.internal.pageSize.width - 10,
-          totalY,
-          {
-            align: "right",
-          }
+          "Casa Luongo - Materiales para la Construcción",
+          pageCenter,
+          footerY + 35,
+          { align: "center" }
         );
-      }
+        doc.text(
+          "Tel: (011) 4209-2699 | WhatsApp 11 6633 1765",
+          pageCenter,
+          footerY + 40,
+          { align: "center" }
+        );
+        doc.text(
+          "Aristóbulo del Valle Nro. 3360 - Villa Diamante - Lanús Oeste",
+          pageCenter,
+          footerY + 45,
+          { align: "center" }
+        );
+      };
 
-      // Descuento (si aplica)
-      if (Number(descuentoPorcentaje) > 0) {
-        totalY += 8;
+      // Si hay 10 o menos items, todo en una hoja
+      if (tableRows.length <= 10) {
+        let lastTableFinalY = 0;
+        autoTable(doc, {
+          head: [tableColumn],
+          body: tableRows,
+          startY: yPos,
+          theme: "grid",
+          styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            lineColor: [200, 200, 200],
+            lineWidth: 0.1,
+          },
+          headStyles: {
+            fillColor: secondaryColor,
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { halign: "center", cellWidth: 20 },
+            1: { halign: "left" },
+            2: { halign: "right", cellWidth: 35 },
+            3: { halign: "right", cellWidth: 35 },
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+          pageBreak: "auto",
+          bodyStyles: {},
+          rowPageBreak: "auto",
+          didDrawCell: function (data) {
+            if (data.row.index === tableRows.length - 1) {
+              lastTableFinalY = data.cell.y + data.cell.height;
+            }
+          },
+        });
+
+        // Totales
+        let yTotales = lastTableFinalY + 10;
+        const totalsWidth = 80;
+        const totalsX = doc.internal.pageSize.width - totalsWidth - 10;
+
         doc.setFontSize(9);
         doc.setTextColor(100, 100, 100);
-        doc.text(
-          `Descuento (${presupuesto.descuento_porcentaje}):`,
-          totalsX,
-          totalY
-        );
-
+        doc.text("Subtotal:", totalsX, yTotales);
         doc.setFontSize(10);
-        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.setTextColor(...textColor);
         doc.text(
-          `-$ ${Number(descuentoMonto).toLocaleString("es-AR")}`,
+          `$ ${Number(subtotal).toLocaleString("es-AR")}`,
           doc.internal.pageSize.width - 10,
-          totalY,
-          {
-            align: "right",
-          }
+          yTotales,
+          { align: "right" }
         );
-      }
 
-      // Total final - En negrita sin fondo naranja
-      totalY += 10;
-
-      doc.setFontSize(11);
-      doc.setFont(undefined, "bold");
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text("TOTAL:", totalsX, totalY);
-      doc.text(
-        `$ ${Number(total).toLocaleString("es-AR")}`,
-        doc.internal.pageSize.width - 10,
-        totalY,
-        {
-          align: "right",
+        if (Number(ivaPorcentaje) > 0) {
+          yTotales += 8;
+          doc.setFontSize(9);
+          doc.setTextColor(100, 100, 100);
+          doc.text(`IVA (${presupuesto.iva_porcentaje}):`, totalsX, yTotales);
+          doc.setFontSize(10);
+          doc.setTextColor(...textColor);
+          doc.text(
+            `$ ${Number(ivaMonto).toLocaleString("es-AR")}`,
+            doc.internal.pageSize.width - 10,
+            yTotales,
+            { align: "right" }
+          );
         }
-      );
-      doc.setFont(undefined, "normal");
 
-      // Información de contacto y términos
-      const contactY = Math.max(finalY + 50, totalY + 20);
+        if (Number(descuentoPorcentaje) > 0) {
+          yTotales += 8;
+          doc.setFontSize(9);
+          doc.setTextColor(100, 100, 100);
+          doc.text(
+            `Descuento (${presupuesto.descuento_porcentaje}):`,
+            totalsX,
+            yTotales
+          );
+          doc.setFontSize(10);
+          doc.setTextColor(...textColor);
+          doc.text(
+            `-$ ${Number(descuentoMonto).toLocaleString("es-AR")}`,
+            doc.internal.pageSize.width - 10,
+            yTotales,
+            { align: "right" }
+          );
+        }
 
-      // Asegurar que los términos y condiciones aparezcan al final de la última página
-      doc.setPage(doc.getNumberOfPages() - 1); // Ir a la última página
-      const pageHeight = doc.internal.pageSize.height;
-      const currentY = doc.lastAutoTable
-        ? doc.lastAutoTable.finalY + 10
-        : finalY + 10;
-      const footerHeight = 60; // Altura aproximada que necesitamos para el pie de página
+        yTotales += 10;
+        doc.setFontSize(11);
+        doc.setFont(undefined, "bold");
+        doc.setTextColor(...primaryColor);
+        doc.text("TOTAL:", totalsX, yTotales);
+        doc.text(
+          `$ ${Number(total).toLocaleString("es-AR")}`,
+          doc.internal.pageSize.width - 10,
+          yTotales,
+          { align: "right" }
+        );
+        doc.setFont(undefined, "normal");
 
-      // Si no hay suficiente espacio en la página actual, agregar una nueva
-      if (currentY + footerHeight > pageHeight - 20) {
+        // Leyenda al pie
+        addLeyendaFooter(doc);
+      } else {
+        // Más de 10 items: primera hoja con 10, segunda hoja con el resto y totales/leyenda
+        const firstPageRows = tableRows.slice(0, 10);
+        const secondPageRows = tableRows.slice(10);
+
+        // --- Primera hoja ---
+        autoTable(doc, {
+          head: [tableColumn],
+          body: firstPageRows,
+          startY: yPos,
+          theme: "grid",
+          styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            lineColor: [200, 200, 200],
+            lineWidth: 0.1,
+          },
+          headStyles: {
+            fillColor: secondaryColor,
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { halign: "center", cellWidth: 20 },
+            1: { halign: "left" },
+            2: { halign: "right", cellWidth: 35 },
+            3: { halign: "right", cellWidth: 35 },
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+          pageBreak: "never",
+          bodyStyles: {},
+          rowPageBreak: "auto",
+        });
+
+        // Leyenda al pie de la primera hoja
+        addLeyendaFooter(doc);
+
+        // --- Segunda hoja ---
         doc.addPage();
+
+        // Encabezado de tabla en segunda hoja
+        let ySecondPage = 30;
+        doc.setFontSize(12);
+        doc.setTextColor(...textColor);
+        doc.setFont(undefined, "bold");
+        doc.text("DETALLE DE PRODUCTOS (continuación)", 15, ySecondPage);
+        doc.setFont(undefined, "normal");
+        ySecondPage += 10;
+
+        let lastTableFinalY2 = 0;
+        autoTable(doc, {
+          head: [tableColumn],
+          body: secondPageRows,
+          startY: ySecondPage,
+          theme: "grid",
+          styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            lineColor: [200, 200, 200],
+            lineWidth: 0.1,
+          },
+          headStyles: {
+            fillColor: secondaryColor,
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { halign: "center", cellWidth: 20 },
+            1: { halign: "left" },
+            2: { halign: "right", cellWidth: 35 },
+            3: { halign: "right", cellWidth: 35 },
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+          pageBreak: "auto",
+          bodyStyles: {},
+          rowPageBreak: "auto",
+          didDrawCell: function (data) {
+            if (data.row.index === secondPageRows.length - 1) {
+              lastTableFinalY2 = data.cell.y + data.cell.height;
+            }
+          },
+        });
+
+        // Totales en la segunda hoja
+        let yTotales = lastTableFinalY2 + 10;
+        const totalsWidth = 80;
+        const totalsX = doc.internal.pageSize.width - totalsWidth - 10;
+
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Subtotal:", totalsX, yTotales);
+        doc.setFontSize(10);
+        doc.setTextColor(...textColor);
+        doc.text(
+          `$ ${Number(subtotal).toLocaleString("es-AR")}`,
+          doc.internal.pageSize.width - 10,
+          yTotales,
+          { align: "right" }
+        );
+
+        if (Number(ivaPorcentaje) > 0) {
+          yTotales += 8;
+          doc.setFontSize(9);
+          doc.setTextColor(100, 100, 100);
+          doc.text(`IVA (${presupuesto.iva_porcentaje}):`, totalsX, yTotales);
+          doc.setFontSize(10);
+          doc.setTextColor(...textColor);
+          doc.text(
+            `$ ${Number(ivaMonto).toLocaleString("es-AR")}`,
+            doc.internal.pageSize.width - 10,
+            yTotales,
+            { align: "right" }
+          );
+        }
+
+        if (Number(descuentoPorcentaje) > 0) {
+          yTotales += 8;
+          doc.setFontSize(9);
+          doc.setTextColor(100, 100, 100);
+          doc.text(
+            `Descuento (${presupuesto.descuento_porcentaje}):`,
+            totalsX,
+            yTotales
+          );
+          doc.setFontSize(10);
+          doc.setTextColor(...textColor);
+          doc.text(
+            `-$ ${Number(descuentoMonto).toLocaleString("es-AR")}`,
+            doc.internal.pageSize.width - 10,
+            yTotales,
+            { align: "right" }
+          );
+        }
+
+        yTotales += 10;
+        doc.setFontSize(11);
+        doc.setFont(undefined, "bold");
+        doc.setTextColor(...primaryColor);
+        doc.text("TOTAL:", totalsX, yTotales);
+        doc.text(
+          `$ ${Number(total).toLocaleString("es-AR")}`,
+          doc.internal.pageSize.width - 10,
+          yTotales,
+          { align: "right" }
+        );
+        doc.setFont(undefined, "normal");
+
+        // Leyenda al pie de la segunda hoja
+        addLeyendaFooter(doc);
       }
 
-      // Calcular la posición Y para el pie de página (cerca del final de la página)
-      const footerY = pageHeight - footerHeight;
-
-      // Línea divisoria
-      doc.setDrawColor(200, 200, 200);
-      doc.line(10, footerY, doc.internal.pageSize.width - 10, footerY);
-
-      // Términos y condiciones
-      doc.setFontSize(8);
-      doc.setTextColor(120, 120, 120);
-      doc.text(
-        "Este presupuesto tiene una validez de 24 hs.",
-        10,
-        footerY + 10
-      );
-      doc.text(
-        "Los precios pueden estar sujetos a modificaciones sin previo aviso.",
-        10,
-        footerY + 15
-      );
-      doc.text(
-        "Los cambios y devoluciones se aceptan dentro de las 24/48hs de la recepción de la compra.",
-        10,
-        footerY + 20
-      );
-      doc.text(
-        "Los materiales o productos de segunda selección, no tienen cambio, ni devolución.",
-        10,
-        footerY + 25
-      );
-
-      // Información de contacto actualizada
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      doc.text(
-        "Casa Luongo - Materiales para la Construcción",
-        10,
-        footerY + 35
-      );
-      doc.text(
-        "Tel: (011) 4209-2699 | WhatsApp 11 6633 1765",
-        10,
-        footerY + 40
-      );
-      doc.text(
-        "Aristóbulo del Valle Nro. 3360 - Villa Diamante - Lanús Oeste",
-        10,
-        footerY + 45
-      );
-
-      // Guardar el PDF
       doc.save(`Presupuesto_${presupuesto.numero}_${Date.now()}.pdf`);
       showToast("PDF generado correctamente", "success");
     } catch (error) {
-      console.error("Error al generar PDF:", error);
       showToast("Error al generar el PDF: " + error.message, "error");
     }
   };
@@ -416,10 +545,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
 
           // Formatear la fecha como YYYY-MM-DD
           fechaEntregaCorregida = fecha.toISOString().split("T")[0];
-          console.log(
-            "Fecha de entrega corregida en convertirAPedido:",
-            fechaEntregaCorregida
-          );
         }
       }
 
@@ -428,12 +553,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
         monto_restante: estadoPago === "resta_abonar" ? montoRestante : 0,
         fecha_entrega: fechaEntregaCorregida || null,
       };
-
-      console.log(
-        "Enviando datos para convertir presupuesto:",
-        JSON.stringify(data)
-      );
-      console.log("ID del presupuesto a convertir:", presupuestoId);
 
       const response = await fetch(
         `/api/presupuestos/${presupuestoId}/convertir-a-pedido`,
@@ -452,12 +571,10 @@ const PresupuestoDetail = ({ presupuesto }) => {
       }
 
       const result = await response.json();
-      console.log("Resultado de la conversión:", result);
 
       showToast("Presupuesto convertido a pedido correctamente", "success");
       router.push(`/pedidos/${result.id}`);
     } catch (error) {
-      console.error("Error al convertir presupuesto:", error);
       showToast(`Error al convertir el presupuesto: ${error.message}`, "error");
     } finally {
       setConverting(false);
@@ -484,29 +601,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
 
   // Asegurarse de que el total sea correcto
   const total = presupuesto.total || subtotal + ivaMonto - descuentoMonto;
-
-  // Añadir logs para depuración
-  useEffect(() => {
-    if (isClient && presupuesto) {
-      console.log("Valores para cálculos:");
-      console.log("Subtotal:", subtotal);
-      console.log("IVA %:", ivaPorcentaje);
-      console.log("IVA monto:", ivaMonto);
-      console.log("Descuento %:", descuentoPorcentaje);
-      console.log("Descuento monto:", descuentoMonto);
-      console.log("Total calculado:", total);
-      console.log("Total del presupuesto:", presupuesto.total);
-    }
-  }, [
-    isClient,
-    presupuesto,
-    subtotal,
-    ivaPorcentaje,
-    ivaMonto,
-    descuentoPorcentaje,
-    descuentoMonto,
-    total,
-  ]);
 
   return (
     <div className="presupuesto-detail-container">
@@ -653,12 +747,6 @@ const PresupuestoDetail = ({ presupuesto }) => {
           <Link
             href={`/presupuestos/${presupuestoId}/editar`}
             className="btn-edit-inline"
-            onClick={() =>
-              console.log(
-                "Navegando a editar presupuesto con ID:",
-                presupuestoId
-              )
-            }
           >
             <Edit size={16} />
             <span>Editar Presupuesto</span>

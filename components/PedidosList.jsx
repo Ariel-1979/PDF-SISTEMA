@@ -136,7 +136,6 @@ const PedidosList = () => {
       setSearching(true);
       setLoading(true);
 
-      console.log("Buscando pedidos con término:", searchQuery.trim());
       const res = await fetch(
         `/api/pedidos?query=${encodeURIComponent(searchQuery.trim())}`
       );
@@ -147,11 +146,9 @@ const PedidosList = () => {
       }
 
       const data = await res.json();
-      console.log("Resultados de búsqueda:", data);
       setPedidos(Array.isArray(data) ? data : []);
       // Los filtros se aplicarán automáticamente en el useEffect
     } catch (error) {
-      console.error("Error al buscar pedidos:", error);
       showToast("Error al buscar pedidos: " + error.message, "error");
     } finally {
       setLoading(false);

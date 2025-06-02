@@ -10,10 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, ArrowLeft, User, Percent } from "lucide-react";
 
 const PresupuestoEditForm = ({ presupuesto }) => {
-  console.log(
-    "PresupuestoEditForm - ID del presupuesto recibido:",
-    presupuesto?.id
-  );
   const [productos, setProductos] = useState([]);
   const [saving, setSaving] = useState(false);
   const [showClienteForm, setShowClienteForm] = useState(false);
@@ -153,9 +149,6 @@ const PresupuestoEditForm = ({ presupuesto }) => {
         total: calcularTotal(),
         iva_porcentaje: opciones.iva,
       };
-
-      console.log("Enviando datos:", JSON.stringify(presupuestoData));
-      console.log("ID del presupuesto para actualizar:", presupuesto.id);
 
       const response = await fetch(`/api/presupuestos/${presupuesto.id}`, {
         method: "PUT",

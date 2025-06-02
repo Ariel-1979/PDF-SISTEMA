@@ -155,7 +155,6 @@ const PedidosList = () => {
       setSearching(true);
       setLoading(true);
 
-      console.log("Buscando pedidos con término:", searchQuery.trim());
       const res = await fetch(
         `/api/pedidos?query=${encodeURIComponent(searchQuery.trim())}`
       );
@@ -166,7 +165,6 @@ const PedidosList = () => {
       }
 
       const data = await res.json();
-      console.log("Resultados de búsqueda:", data);
       setPedidos(Array.isArray(data) ? data : []);
       // Los filtros se aplicarán automáticamente en el useEffect
     } catch (error) {
@@ -344,13 +342,6 @@ const PedidosList = () => {
             <option value="a_pagar">A Pagar</option>
             <option value="resta_abonar">Resta Abonar</option>
           </select>
-
-          {/* Nuevo filtro de fecha con calendario personalizado */}
-          {/*  <CustomDatePicker
-            value={fechaFilter}
-            onChange={setFechaFilter}
-            datesWithPedidos={fechasConPedidos}
-          /> */}
 
           {/* Botón para limpiar filtros */}
           {filtersActive && (

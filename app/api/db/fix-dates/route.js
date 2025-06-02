@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server"
-import mysql from "mysql2/promise"
+import { NextResponse } from "next/server";
+import mysql from "mysql2/promise";
 
 export async function POST() {
   try {
@@ -12,13 +12,13 @@ export async function POST() {
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
-    }
+    };
 
     // Crear conexión
-    const connection = await mysql.createConnection(dbConfig)
+    const connection = await mysql.createConnection(dbConfig);
 
     // Obtener el año actual
-    const currentYear = new Date().getFullYear()
+    const currentYear = new Date().getFullYear();
 
     // Buscar pedidos con fechas de entrega en años futuros
     const [pedidosConFechasFuturas] = await connection.execute(
@@ -27,19 +27,19 @@ export async function POST() {
       FROM presupuestos 
       WHERE YEAR(fecha_entrega) > ?
     `,
-      [currentYear],
-    )
-
-    console.log(`Encontrados ${pedidosConFechasFuturas.length} pedidos con fechas futuras`)
+      [currentYear]
+    );
 
     // Corregir las fechas de entrega
     for (const pedido of pedidosConFechasFuturas) {
-      const fechaOriginal = new Date(pedido.fecha_entrega)
+      const fechaOriginal = new Date(pedido.fecha_entrega);
 
       // Crear una nueva fecha con el año actual pero manteniendo mes y día
-      const fechaCorregida = new Date(currentYear, fechaOriginal.getMonth(), fechaOriginal.getDate())
-
-      console.log(`Corrigiendo pedido ${pedido.id}: ${fechaOriginal.toISOString()} -> ${fechaCorregida.toISOString()}`)
+      const fechaCorregida = new Date(
+        currentYear,
+        fechaOriginal.getMonth(),
+        fechaOriginal.getDate()
+      );
 
       // Actualizar la fecha en la base de datos
       await connection.execute(
@@ -48,20 +48,19 @@ export async function POST() {
         SET fecha_entrega = ? 
         WHERE id = ?
       `,
-        [fechaCorregida, pedido.id],
-      )
+        [fechaCorregida, pedido.id]
+      );
     }
 
     // Cerrar conexión
-    await connection.end()
+    await connection.end();
 
     return NextResponse.json({
       message: "Fechas corregidas correctamente",
       pedidosCorregidos: pedidosConFechasFuturas.length,
-    })
+    });
   } catch (error) {
-    console.error("Error al corregir fechas:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error("Error al corregir fechas:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

@@ -10,8 +10,6 @@ export async function DELETE(request) {
       return NextResponse.json({ error: "Se requiere ID" }, { status: 400 });
     }
 
-    console.log("API: Eliminando chofer con ID:", id);
-
     // Crear conexión a la base de datos
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST,

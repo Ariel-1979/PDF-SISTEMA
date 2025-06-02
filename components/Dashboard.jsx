@@ -38,16 +38,12 @@ const Dashboard = () => {
         today.getMonth() + 1
       ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-      console.log("Fecha actual formateada:", formattedToday);
-
       // Obtener estadísticas de pedidos para hoy
       const pedidosHoyRes = await fetch(
         `/api/pedidos/fecha?fecha=${formattedToday}`
       );
       const pedidosHoyData = await pedidosHoyRes.json();
       const pedidosHoy = Array.isArray(pedidosHoyData) ? pedidosHoyData : [];
-
-      console.log("Pedidos para hoy:", pedidosHoy);
 
       // Obtener estadísticas de pedidos programados (futuros)
       const pedidosProgramadosRes = await fetch(
@@ -69,19 +65,10 @@ const Dashboard = () => {
               "0"
             )}`;
 
-            console.log(
-              "Comparando fechas:",
-              formattedFechaEntrega,
-              formattedToday,
-              formattedFechaEntrega !== formattedToday
-            );
-
             // Devolver true solo si la fecha de entrega NO es hoy
             return formattedFechaEntrega !== formattedToday;
           })
         : [];
-
-      console.log("Pedidos programados filtrados:", pedidosProgramados);
 
       setStats({
         pedidosHoy,
@@ -117,12 +104,6 @@ const Dashboard = () => {
         fecha.setFullYear(añoActual);
       }
       fechaClave = fecha.toISOString().split("T")[0];
-      console.log(
-        "Fecha de entrega original:",
-        pedido.fecha_entrega,
-        "Fecha clave corregida:",
-        fechaClave
-      );
     }
 
     if (!acc[fechaClave]) {

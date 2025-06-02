@@ -13,8 +13,6 @@ export async function GET(request) {
       );
     }
 
-    console.log("Buscando pedidos para el chofer:", nombre);
-
     // Crear conexión a la base de datos
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST,
@@ -37,11 +35,6 @@ export async function GET(request) {
       );
 
       await connection.end();
-
-      // Registrar para depuración
-      console.log(
-        `Encontrados ${rows.length} pedidos para el chofer ${nombre}`
-      );
 
       return NextResponse.json(rows);
     } catch (dbError) {
