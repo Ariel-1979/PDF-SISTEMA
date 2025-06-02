@@ -86,10 +86,6 @@ const ChoferesPedidos = () => {
             }
 
             const data = await res.json();
-            console.log(
-              `Pedidos obtenidos para ${chofer.nombre}:`,
-              data.length
-            );
 
             // Filtrar pedidos para la fecha seleccionada
             const pedidosFiltrados = Array.isArray(data)
@@ -103,18 +99,11 @@ const ChoferesPedidos = () => {
                   // Convertir la fecha de entrega a formato YYYY-MM-DD
                   const fechaPedido = formatDateToString(pedido.fecha_entrega);
 
-                  console.log(
-                    `Comparando fechas - Pedido: ${fechaPedido}, Seleccionada: ${fechaSeleccionada}`
-                  );
-
                   // Comparar las fechas como cadenas en formato YYYY-MM-DD
                   return fechaPedido === fechaSeleccionada;
                 })
               : [];
 
-            console.log(
-              `Pedidos filtrados para ${chofer.nombre} en fecha ${selectedDate}: ${pedidosFiltrados.length}`
-            );
             pedidosTemp[chofer.nombre] = pedidosFiltrados;
           } catch (error) {
             console.error(
@@ -129,7 +118,6 @@ const ChoferesPedidos = () => {
 
       setPedidosPorChofer(pedidosTemp);
     } catch (error) {
-      console.error(`Error al cargar pedidos:`, error);
       showToast(`Error al cargar pedidos`, "error");
     } finally {
       setLoadingPedidos(false);
@@ -154,7 +142,6 @@ const ChoferesPedidos = () => {
   };
 
   const handleDateChange = (date) => {
-    console.log("Nueva fecha seleccionada:", date);
     setSelectedDate(date);
   };
 

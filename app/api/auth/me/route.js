@@ -28,11 +28,9 @@ export async function GET() {
         },
       });
     } catch (jwtError) {
-      console.error("Error al verificar token:", jwtError);
       return NextResponse.json({ error: "Token inválido" }, { status: 401 });
     }
   } catch (error) {
-    console.error("Error al obtener usuario:", error);
     return NextResponse.json(
       { error: "Error al obtener usuario" },
       { status: 500 }

@@ -145,9 +145,6 @@ const PedidoEditForm = ({ pedido }) => {
         iva_porcentaje: opciones.iva,
       };
 
-      console.log("Enviando datos:", JSON.stringify(pedidoData));
-      console.log("ID del pedido para actualizar:", pedido.id);
-
       const response = await fetch(`/api/pedidos/${pedido.id}`, {
         method: "PUT",
         headers: {

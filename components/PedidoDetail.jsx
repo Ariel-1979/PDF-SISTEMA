@@ -30,12 +30,7 @@ const PedidoDetail = ({ pedido }) => {
   const [loadingChoferes, setLoadingChoferes] = useState(false);
 
   // Agregar más logs para depuración
-  useEffect(() => {
-    if (pedido) {
-      console.log("PedidoDetail - ID del pedido cargado:", pedido.id);
-      console.log("PedidoDetail - Datos completos del pedido:", pedido);
-    }
-  }, [pedido]);
+  useEffect(() => {}, [pedido]);
 
   useEffect(() => {
     // Cargar la lista de choferes cuando se abre el formulario de edición
@@ -75,34 +70,27 @@ const PedidoDetail = ({ pedido }) => {
   const ivaMonto = pedido.iva_monto || 0;
   const total = pedido.total;
 
+  // Generar PDF con salto de página después del ítem 10
   const generarPDF = async () => {
     try {
-      // Importamos jsPDF y autoTable dinámicamente
       const { jsPDF } = await import("jspdf");
       const autoTable = (await import("jspdf-autotable")).default;
 
-      // Crear un nuevo documento PDF
       const doc = new jsPDF();
 
-      // Colores corporativos
-      const primaryColor = [255, 102, 0]; // Naranja #ff6600
-      const secondaryColor = [74, 109, 167]; // Azul #4a6da7
-      const textColor = [51, 51, 51]; // Gris oscuro #333333
+      const primaryColor = [255, 102, 0];
+      const secondaryColor = [74, 109, 167];
+      const textColor = [51, 51, 51];
 
-      // Agregar logo
-      const logoImg = new Image();
+      // --- LOGO ---
+      const logoImg = new window.Image();
       logoImg.src =
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo_Luongo-2yJWkbBhykRbk43ImjzWGhnPvuw3uR.png";
-
       await new Promise((resolve) => {
         logoImg.onload = resolve;
       });
-
-      // Calcular dimensiones para mantener la proporción
       const imgWidth = 50;
       const imgHeight = (logoImg.height * imgWidth) / logoImg.width;
-
-      // Agregar logo centrado
       doc.addImage(
         logoImg,
         "PNG",
@@ -112,19 +100,19 @@ const PedidoDetail = ({ pedido }) => {
         imgHeight
       );
 
-      // Encabezado - Orden cambiado según lo solicitado
+      // --- HEADER ---
       doc.setFontSize(14);
-      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.setTextColor(...secondaryColor);
       doc.text("Materiales para la Construcción", 105, 40, { align: "center" });
 
       doc.setFontSize(22);
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setTextColor(...primaryColor);
       doc.text("PEDIDO", 105, 50, { align: "center" });
       const textWidth = doc.getTextWidth("PEDIDO");
-      doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setDrawColor(...primaryColor);
       doc.setLineWidth(0.5);
       doc.line(105 - textWidth / 2, 52, 105 + textWidth / 2, 52);
-      // Número de pedido y fecha en el mismo renglón
+
       const fecha = new Date(
         pedido.fecha_conversion || pedido.fecha_creacion
       ).toLocaleDateString("es-AR", {
@@ -134,7 +122,7 @@ const PedidoDetail = ({ pedido }) => {
       });
 
       doc.setFontSize(10);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setTextColor(...textColor);
       doc.text(`Pedido Nro.: ${pedido.numero}`, 15, 62);
       doc.text(`FECHA: ${fecha}`, doc.internal.pageSize.width - 15, 62, {
         align: "right",
@@ -154,31 +142,24 @@ const PedidoDetail = ({ pedido }) => {
         );
       }
 
-      // Información del cliente - En negrita sin fondo naranja
+      // --- INFORMACIÓN DEL CLIENTE ---
       doc.setFontSize(12);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setTextColor(...textColor);
       doc.setFont(undefined, "bold");
       doc.text("INFORMACIÓN DEL CLIENTE", 15, 80);
       doc.setFont(undefined, "normal");
 
       doc.setFontSize(10);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-
-      // Organizar datos del cliente en dos columnas para aprovechar espacio
+      doc.setTextColor(...textColor);
       let leftColY = 90;
       let rightColY = 90;
       const midPoint = doc.internal.pageSize.width / 2;
-
-      // Columna izquierda
       doc.text(`Cliente: ${pedido.nombre}`, 15, leftColY);
       leftColY += 7;
-
       if (pedido.domicilio) {
         doc.text(`Domicilio: ${pedido.domicilio}`, 15, leftColY);
         leftColY += 7;
       }
-
-      // Columna derecha
       if (pedido.entre_calles) {
         doc.text(
           `Entre calles: ${pedido.entre_calles}`,
@@ -187,21 +168,17 @@ const PedidoDetail = ({ pedido }) => {
         );
         rightColY += 7;
       }
-
       if (pedido.telefono) {
         doc.text(`Teléfono: ${pedido.telefono}`, midPoint + 5, rightColY);
         rightColY += 7;
       }
 
-      // Estado de entrega y pago
+      // --- ESTADO ---
       const estadoY = Math.max(leftColY, rightColY) + 5;
-
       doc.setFontSize(10);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setTextColor(...textColor);
       doc.setFont(undefined, "bold");
       doc.text("ESTADO:", 15, estadoY);
-
-      // Estado de entrega
       const estadoEntregaText = getEstadoEntregaText(pedido.estado_entrega);
       doc.text(
         `${estadoEntregaText} | ${getEstadoPagoText(pedido.estado_pago)}`,
@@ -214,7 +191,7 @@ const PedidoDetail = ({ pedido }) => {
       let yPos = estadoY + 10;
       if (pedido.estado_pago === "resta_abonar") {
         doc.setFontSize(10);
-        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.setTextColor(...textColor);
         doc.text(
           `Monto restante: $${Number(pedido.monto_restante).toLocaleString(
             "es-AR"
@@ -224,262 +201,340 @@ const PedidoDetail = ({ pedido }) => {
         );
         yPos += 7;
       }
-
       // Chofer si está entregado
       if (pedido.estado_entrega === "entregado" && pedido.chofer) {
         doc.setFontSize(10);
-        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.setTextColor(...textColor);
         doc.text(`Entregado por: ${pedido.chofer}`, 15, yPos);
         yPos += 7;
       }
-
       yPos += 5;
 
-      // Detalle de productos - En negrita sin fondo naranja
+      // --- DETALLE DE PRODUCTOS ---
       doc.setFontSize(12);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setTextColor(...textColor);
       doc.setFont(undefined, "bold");
       doc.text("DETALLE DE PRODUCTOS", 15, yPos);
       doc.setFont(undefined, "normal");
-
       yPos += 10;
 
-      // Preparar datos para la tabla
+      // --- TABLA DE PRODUCTOS ---
       const tableColumn = [
         "Cantidad",
         "Producto",
         "Precio Unitario",
         "Subtotal",
       ];
-      const tableRows = [];
+      const productos = pedido.productos || [];
+      const tableRows = productos.map((producto) => [
+        producto.cantidad,
+        producto.nombre,
+        `$${Number(producto.precio_unitario).toLocaleString("es-AR")}`,
+        `$${Number(producto.subtotal).toLocaleString("es-AR")}`,
+      ]);
 
-      pedido.productos.forEach((producto) => {
-        const productData = [
-          producto.cantidad,
-          producto.nombre,
-          `$${Number(producto.precio_unitario).toLocaleString("es-AR")}`,
-          `$${Number(producto.subtotal).toLocaleString("es-AR")}`,
-        ];
-        tableRows.push(productData);
-      });
+      // Leyenda footer
+      const addLeyendaFooter = (doc) => {
+        const pageHeight = doc.internal.pageSize.height;
+        const footerY = pageHeight - 60;
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.1);
+        doc.line(10, footerY, doc.internal.pageSize.width - 10, footerY);
 
-      // Usar autoTable como función independiente
-      autoTable(doc, {
-        head: [tableColumn],
-        body: tableRows,
-        startY: yPos,
-        theme: "grid",
-        styles: {
-          fontSize: 9,
-          cellPadding: 3,
-          lineColor: [200, 200, 200],
-          lineWidth: 0.1,
-        },
-        headStyles: {
-          fillColor: secondaryColor,
-          textColor: [255, 255, 255],
-          fontStyle: "bold",
-          halign: "center",
-        },
-        columnStyles: {
-          0: { halign: "center", cellWidth: 20 },
-          1: { halign: "left" },
-          2: { halign: "right", cellWidth: 35 },
-          3: { halign: "right", cellWidth: 35 },
-        },
-        alternateRowStyles: {
-          fillColor: [245, 245, 245],
-        },
-      });
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text(
+          "Este presupuesto tiene una validez de 24 hs.",
+          10,
+          footerY + 10
+        );
+        doc.text(
+          "Los precios pueden estar sujetos a modificaciones sin previo aviso.",
+          10,
+          footerY + 15
+        );
+        doc.text(
+          "Los cambios y devoluciones se aceptan dentro de las 24/48hs de la recepción de la compra.",
+          10,
+          footerY + 20
+        );
+        doc.text(
+          "Los materiales o productos de segunda selección, no tienen cambio, ni devolución.",
+          10,
+          footerY + 25
+        );
 
-      // Totales - Mejorar padding/margin
-      const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        const pageCenter = doc.internal.pageSize.width / 2;
+        doc.text(
+          "Casa Luongo - Materiales para la Construcción",
+          pageCenter,
+          footerY + 35,
+          { align: "center" }
+        );
+        doc.text(
+          "Tel: (011) 4209-2699 | WhatsApp 11 6633 1765",
+          pageCenter,
+          footerY + 40,
+          { align: "center" }
+        );
+        doc.text(
+          "Aristóbulo del Valle Nro. 3360 - Villa Diamante - Lanús Oeste",
+          pageCenter,
+          footerY + 45,
+          { align: "center" }
+        );
+      };
 
-      // Ajustar el ancho y posición de los totales
+      // --- MANEJO DE SALTO DE PÁGINA EN EL ÍTEM 10 ---
+      let lastTableFinalY = 0;
+      if (tableRows.length <= 10) {
+        // Si hay 10 o menos ítems, todo en una hoja
+        autoTable(doc, {
+          head: [tableColumn],
+          body: tableRows,
+          startY: yPos,
+          theme: "grid",
+          styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            lineColor: [200, 200, 200],
+            lineWidth: 0.1,
+          },
+          headStyles: {
+            fillColor: secondaryColor,
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { halign: "center", cellWidth: 20 },
+            1: { halign: "left" },
+            2: { halign: "right", cellWidth: 35 },
+            3: { halign: "right", cellWidth: 35 },
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+          pageBreak: "auto",
+          bodyStyles: {},
+          rowPageBreak: "auto",
+          didDrawCell: function (data) {
+            if (data.row.index === tableRows.length - 1) {
+              lastTableFinalY = data.cell.y + data.cell.height;
+            }
+          },
+          didDrawPage: function () {
+            addLeyendaFooter(doc);
+            doc.setFontSize(8);
+            doc.setTextColor(120, 120, 120);
+            const pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
+            const totalPages = doc.internal.getNumberOfPages();
+            doc.text(
+              `Página ${pageNumber} de ${totalPages}`,
+              doc.internal.pageSize.width - 10,
+              doc.internal.pageSize.height - 10,
+              { align: "right" }
+            );
+          },
+        });
+      } else {
+        // Más de 10 ítems: primera hoja con 10, segunda hoja con el resto
+        const firstPageRows = tableRows.slice(0, 10);
+        const secondPageRows = tableRows.slice(10);
+
+        // --- Primera hoja ---
+        autoTable(doc, {
+          head: [tableColumn],
+          body: firstPageRows,
+          startY: yPos,
+          theme: "grid",
+          styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            lineColor: [200, 200, 200],
+            lineWidth: 0.1,
+          },
+          headStyles: {
+            fillColor: secondaryColor,
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { halign: "center", cellWidth: 20 },
+            1: { halign: "left" },
+            2: { halign: "right", cellWidth: 35 },
+            3: { halign: "right", cellWidth: 35 },
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+          pageBreak: "never",
+          bodyStyles: {},
+          rowPageBreak: "auto",
+          didDrawPage: function () {
+            addLeyendaFooter(doc);
+            doc.setFontSize(8);
+            doc.setTextColor(120, 120, 120);
+            const pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
+            const totalPages = doc.internal.getNumberOfPages();
+            doc.text(
+              `Página ${pageNumber} de ${totalPages}`,
+              doc.internal.pageSize.width - 10,
+              doc.internal.pageSize.height - 10,
+              { align: "right" }
+            );
+          },
+        });
+
+        // --- Segunda hoja ---
+        doc.addPage();
+
+        // Encabezado de tabla en segunda hoja
+        let ySecondPage = 30;
+        doc.setFontSize(12);
+        doc.setTextColor(...textColor);
+        doc.setFont(undefined, "bold");
+        doc.text("DETALLE DE PRODUCTOS (continuación)", 15, ySecondPage);
+        doc.setFont(undefined, "normal");
+        ySecondPage += 10;
+
+        let lastTableFinalY2 = 0;
+        autoTable(doc, {
+          head: [tableColumn],
+          body: secondPageRows,
+          startY: ySecondPage,
+          theme: "grid",
+          styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            lineColor: [200, 200, 200],
+            lineWidth: 0.1,
+          },
+          headStyles: {
+            fillColor: secondaryColor,
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+            halign: "center",
+          },
+          columnStyles: {
+            0: { halign: "center", cellWidth: 20 },
+            1: { halign: "left" },
+            2: { halign: "right", cellWidth: 35 },
+            3: { halign: "right", cellWidth: 35 },
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+          pageBreak: "auto",
+          bodyStyles: {},
+          rowPageBreak: "auto",
+          didDrawCell: function (data) {
+            if (data.row.index === secondPageRows.length - 1) {
+              lastTableFinalY2 = data.cell.y + data.cell.height;
+            }
+          },
+          didDrawPage: function () {
+            addLeyendaFooter(doc);
+            doc.setFontSize(8);
+            doc.setTextColor(120, 120, 120);
+            const pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
+            const totalPages = doc.internal.getNumberOfPages();
+            doc.text(
+              `Página ${pageNumber} de ${totalPages}`,
+              doc.internal.pageSize.width - 10,
+              doc.internal.pageSize.height - 10,
+              { align: "right" }
+            );
+          },
+        });
+
+        lastTableFinalY = lastTableFinalY2;
+      }
+
+      // Totales sólo en la última hoja
+      const totalPages = doc.internal.getNumberOfPages();
+      doc.setPage(totalPages);
+      let yTotales = lastTableFinalY + 10;
+      if (yTotales > doc.internal.pageSize.height - 70) {
+        doc.addPage();
+        yTotales = 30;
+        addLeyendaFooter(doc);
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text(
+          `Página ${
+            doc.internal.getCurrentPageInfo().pageNumber
+          } de ${doc.internal.getNumberOfPages()}`,
+          doc.internal.pageSize.width - 10,
+          doc.internal.pageSize.height - 10,
+          { align: "right" }
+        );
+      }
       const totalsWidth = 80;
-      const totalsX = doc.internal.pageSize.width - totalsWidth - 10; // 10 es el margen derecho
+      const totalsX = doc.internal.pageSize.width - totalsWidth - 10;
 
-      let totalY = finalY;
-
-      // Subtotal
       doc.setFontSize(9);
       doc.setTextColor(100, 100, 100);
-      doc.text("Subtotal:", totalsX, totalY);
-
+      doc.text("Subtotal:", totalsX, yTotales);
       doc.setFontSize(10);
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setTextColor(...textColor);
       doc.text(
         `$${Number(subtotal).toLocaleString("es-AR")}`,
         doc.internal.pageSize.width - 10,
-        totalY,
-        {
-          align: "right",
-        }
+        yTotales,
+        { align: "right" }
       );
 
-      // IVA (si aplica)
       if (Number.parseFloat(ivaPorcentaje) > 0) {
-        totalY += 8;
+        yTotales += 8;
         doc.setFontSize(9);
         doc.setTextColor(100, 100, 100);
-        doc.text(`IVA (${ivaPorcentaje}):`, totalsX, totalY);
-
+        doc.text(`IVA (${ivaPorcentaje}):`, totalsX, yTotales);
         doc.setFontSize(10);
-        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.setTextColor(...textColor);
         doc.text(
           `$${Number(ivaMonto).toLocaleString("es-AR")}`,
           doc.internal.pageSize.width - 10,
-          totalY,
-          {
-            align: "right",
-          }
+          yTotales,
+          { align: "right" }
         );
       }
 
-      // Descuento (si aplica)
       if (
         Number(descuentoMonto) > 0 ||
         (descuentoPorcentaje &&
           Number(descuentoPorcentaje.replace("%", "")) > 0)
       ) {
-        totalY += 8;
+        yTotales += 8;
         doc.setFontSize(9);
         doc.setTextColor(100, 100, 100);
-        doc.text(`Descuento (${descuentoPorcentaje}):`, totalsX, totalY);
-
+        doc.text(`Descuento (${descuentoPorcentaje}):`, totalsX, yTotales);
         doc.setFontSize(10);
-        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        doc.setTextColor(...textColor);
         doc.text(
           `-$${Number(descuentoMonto).toLocaleString("es-AR")}`,
           doc.internal.pageSize.width - 10,
-          totalY,
-          {
-            align: "right",
-          }
+          yTotales,
+          { align: "right" }
         );
       }
 
-      // Total final - En negrita sin fondo naranja
-      totalY += 10;
-
+      yTotales += 10;
       doc.setFontSize(11);
       doc.setFont(undefined, "bold");
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text("TOTAL:", totalsX, totalY);
+      doc.setTextColor(...primaryColor);
+      doc.text("TOTAL:", totalsX, yTotales);
       doc.text(
         `$${Number(total).toLocaleString("es-AR")}`,
         doc.internal.pageSize.width - 10,
-        totalY,
-        {
-          align: "right",
-        }
+        yTotales,
+        { align: "right" }
       );
       doc.setFont(undefined, "normal");
 
-      // Información de contacto y términos
-      const contactY = Math.max(finalY + 50, totalY + 20);
-
-      // Línea divisoria
-      doc.setDrawColor(200, 200, 200);
-      doc.line(10, contactY, doc.internal.pageSize.width - 10, contactY);
-
-      // Términos y condiciones
-      doc.setFontSize(8);
-      doc.setTextColor(120, 120, 120);
-      doc.text(
-        "Los cambios y devoluciones se aceptan dentro de las 24/48hs de la recepción de la compra.",
-        10,
-        contactY + 10
-      );
-      doc.text(
-        "Los materiales o productos de segunda selección, no tienen cambio, ni devolución.",
-        10,
-        contactY + 15
-      );
-
-      // Información de contacto actualizada
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      doc.text(
-        "Casa Luongo - Materiales para la Construcción",
-        10,
-        contactY + 25
-      );
-      doc.text(
-        "Tel: (011) 4209-2699 | WhatsApp 11 6633 1765",
-        10,
-        contactY + 30
-      );
-      doc.text(
-        "Aristóbulo del Valle Nro. 3360 - Villa Diamante - Lanús Oeste",
-        10,
-        contactY + 35
-      );
-
-      // Asegurar que los términos y condiciones aparezcan al final de la última página
-      doc.setPage(doc.getNumberOfPages() - 1); // Ir a la última página
-      const pageHeight = doc.internal.pageSize.height;
-      const currentY = doc.lastAutoTable
-        ? doc.lastAutoTable.finalY + 10
-        : finalY + 10;
-      const footerHeight = 60; // Altura aproximada que necesitamos para el pie de página
-
-      // Si no hay suficiente espacio en la página actual, agregar una nueva
-      if (currentY + footerHeight > pageHeight - 20) {
-        doc.addPage();
-      }
-
-      // Calcular la posición Y para el pie de página (cerca del final de la página)
-      const footerY = pageHeight - footerHeight;
-
-      // Línea divisoria
-      doc.setDrawColor(200, 200, 200);
-      doc.line(10, footerY, doc.internal.pageSize.width - 10, footerY);
-
-      // Términos y condiciones
-      doc.setFontSize(8);
-      doc.setTextColor(120, 120, 120);
-      doc.text(
-        "Este presupuesto tiene una validez de 24 hs.",
-        10,
-        footerY + 10
-      );
-      doc.text(
-        "Los precios pueden estar sujetos a modificaciones sin previo aviso.",
-        10,
-        footerY + 15
-      );
-      doc.text(
-        "Los cambios y devoluciones se aceptan dentro de las 24/48hs de la recepción de la compra.",
-        10,
-        footerY + 20
-      );
-      doc.text(
-        "Los materiales o productos de segunda selección, no tienen cambio, ni devolución.",
-        10,
-        footerY + 25
-      );
-
-      // Información de contacto actualizada
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      doc.text(
-        "Casa Luongo - Materiales para la Construcción",
-        10,
-        footerY + 35
-      );
-      doc.text(
-        "Tel: (011) 4209-2699 | WhatsApp 11 6633 1765",
-        10,
-        footerY + 40
-      );
-      doc.text(
-        "Aristóbulo del Valle Nro. 3360 - Villa Diamante - Lanús Oeste",
-        10,
-        footerY + 45
-      );
-
-      // Guardar el PDF
       doc.save(`Pedido_${pedido.numero}_${Date.now()}.pdf`);
       showToast("PDF generado correctamente", "success");
     } catch (error) {
@@ -787,9 +842,6 @@ const PedidoDetail = ({ pedido }) => {
           <Link
             href={`/pedidos/${pedidoId}/editar`}
             className="btn-edit-inline"
-            onClick={() =>
-              console.log("Navegando a editar pedido con ID:", pedidoId)
-            }
           >
             <Edit size={16} />
             <span>Editar Pedido</span>
